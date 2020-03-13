@@ -1,0 +1,27 @@
+# directories
+.git
+.cache
+.circleci
+.rulesets
+.infrastructure
+.tools
+build
+benchmarks
+documentation
+tests
+
+# files
+*.md
+.gitignore
+.dockerignore
+.editorconfig
+.env.example
+Dockerfile
+LICENSE
+infection.json.dist
+phpbench.json
+phpstan.neon.dist
+phpunit-printer.yml
+phpunit.xml
+.codeclimate.yml
+.whitesource

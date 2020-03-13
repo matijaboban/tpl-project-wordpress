@@ -1,0 +1,108 @@
+version: '3.4'
+
+services:
+  app:
+    image: test01:latest
+    restart: always
+    container_name: ${APP_NAME}_app
+    ports:
+      - 5580:80
+    depends_on:
+      - database
+    # links:
+      # - php
+    networks:
+      - scrw_internal
+    environment:
+      - DATABASE_URL='mysql://wp_db_user:wp_db_password@172.28.0.3:3306/wordpress'
+      # - DB_HOST=${DB_HOST:-172.28.0.3}
+    labels:
+      - 'scrw.backend=${APP_NAME}'
+      - 'scrw.docker.network=scrw_wp_external'
+      - 'scrw.frontend.rule=Host:${APP_NAME}'
+      - 'scrw.enable=true'
+      - 'scrw.port=80'
+    volumes:
+      # - ./config/nginx:/etc/nginx/conf.d
+      - .cache/app/logs/nginx:/var/log/nginx
+      - .cache/app/logs/php:/var/log/php
+      - .cache/app/logs/supervisor:/var/log/supervisor
+      - .cache/app/uploads:/home/appuser/app/web/app/uploads
+      # - type: bind
+      #   source: /home/appuser/app/web/app/uploads
+      #   target: .cache/app/uploads
+
+  database:
+    image: mariadb:latest
+    container_name: ${APP_NAME}_mysql
+    restart: always
+    ports:
+      - '3306:3306'
+    networks:
+      scrw_internal:
+          ipv4_address: 172.28.0.3
+    # networks:
+    #   scrw_internal:
+    #       ipv4_address: 172.28.0.3
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_DATABASE: mybb
+      MYSQL_USER: mybb
+      MYSQL_PASSWORD: changeme
+      # - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      # - MYSQL_USER=${MYSQL_USER:-wp_db_user}
+      # - MYSQL_PASSWORD=${MYSQL_PASSWORD:-wp_db_password}
+      # - MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
+    volumes:
+      - '.cache/database:/var/lib/mysql'
+
+  # php:
+  #   restart: always
+  #   container_name: ${APP_NAME}_php
+  #   # depends_on:
+  #   #   - database
+  #   # links:
+  #   #   - database
+  #   networks:
+  #     - scrw_wp_external
+  #     - timber
+  #   # environment:
+  #   #   - DB_HOST=database
+  #   #   - DB_NAME=${DB_NAME}
+  #   #   - DB_USER=${DB_USER}
+  #   #   - DB_PASSWORD=${DB_PASSWORD}
+  #   volumes:
+  #     - ./web:/var/www/html
+  #     - ./config/php.ini:/usr/local/etc/php/conf.d/php.ini
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - 5780:8080
+    depends_on:
+      - database
+    labels:
+      - 'scrw.enable=true'
+      - 'scrw.backend=${APP_NAME}_adminer'
+      - 'scrw.frontend.rule=Host:adminer.scrw.local'
+      - 'scrw.docker.network=web'
+      - 'scrw.docker.port=8080'
+    networks:
+      - scrw_internal
+      - scrw_external
+
+networks:
+  scrw_external:
+    driver: bridge
+    # external: false
+  scrw_internal:
+    driver: bridge
+    # ipam:
+    #   config:
+    #     - subnet: 172.28.0.0/24
+
+# volumes:
+#   uploads:
+
+# 172.28.0.2

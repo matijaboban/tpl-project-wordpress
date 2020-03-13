@@ -1,0 +1,35 @@
+## Project enviroment
+.env
+
+## Vendor/3rd party libs
+**/node_modules
+**/vendor
+
+## Project testing
+/tests/_reports/*
+/coverage
+
+## Project code documentation
+/docs/code/*
+
+## Build folders
+.build
+dist
+
+## Cache and locks
+**/.cache/*
+cghooks.lock
+
+## Temporary generated files in root
+phpunit-printer.yml
+
+## CI process specific
+.circleci/ci-ops*
+
+## misc.
+/.idea
+/nbproject/
+.DS_Store
+
+## Structural
+!.gitkeep
