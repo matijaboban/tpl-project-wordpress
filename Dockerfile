@@ -164,8 +164,8 @@ RUN pip install supervisor-stdout
 # RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime
 # RUN dpkg-reconfigure --frontend noninteractive tzdata
 
-RUN php -v
-RUN nginx -v
+# RUN php -v
+# RUN nginx -v
 
 # RUN apt purge php7.2*
 # RUN apt purge php7.3*
@@ -185,7 +185,7 @@ ADD .docker/supervisor/supervisord.conf /etc/supervisord.conf
 ADD .docker/supervisor/supervisord-program_*.conf /etc/
 ADD .docker/nginx/nginx.conf /etc/nginx/nginx.conf
 ADD .docker/nginx/site.conf /etc/nginx/sites-available/default
-# ADD .docker/php/php.ini /etc/php/${php_version}/fpm/php.ini
+ADD .docker/php-fpm/php.ini /etc/php/${php_version}/fpm/php.ini
 ADD .docker/php-fpm/php-fpm.conf /etc/php/${php_version}/fpm/php-fpm.conf
 ADD .docker/php-fpm/pool.app.conf /etc/php/${php_version}/fpm/pool.d/app.conf
 RUN chmod 755 /start.sh
