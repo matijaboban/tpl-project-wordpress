@@ -1,0 +1,679 @@
+version: 2.1
+
+### Parameters ###
+#-------------------------------------------------
+# Section defines parameters and optionally their
+# default states. Parameters are useful in
+# controlling conditional jobs/steps and can be
+# set via an API call.
+#-------------------------------------------------
+parameters:
+  execute-new-release-workflow:
+    type: boolean
+    default: false
+
+### References ###
+#-------------------------------------------------
+# Section defines configuration references.
+#-------------------------------------------------
+references:
+  # Set system environment keys required for the flow.
+  # These should be all env. variables required for all
+  # steps/jobs and underlying function and should be tested
+  # for existence in the first steps of the flow.
+  required_sys_env_variables: &required_sys_env_variables
+    CC_TEST_REPORTER_ID
+    GITHUB_TOKEN
+    GITHUB_TOKEN_ALTERNATIVE
+    GITHUB_BOT_USER_NAME
+    GITHUB_BOT_USER_EMAIL
+
+  # Path to the base working directory.
+  # The path is a global variable usually implemented within
+  # the executors.
+  working_directory: &working_directory
+    ~/project
+
+  # Path to the base workspace directory.
+  # The path is the base for file persistence operations
+  # between operational steps.
+  workspace_root: &workspace_root
+    /tmp/workspace
+
+  # Structural alias that attaches a workspace into the executor.
+  # It is used as one of the steps within a job.
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: *workspace_root
+
+  # Cron scheduling values for new release workflow use.
+  new-release-workflow-cron: &release-workflow-cron
+    "4 16,20,23 * * 1-5"
+
+
+### Orbs ###
+#-------------------------------------------------
+# Section defines orb used in the configuration
+#-------------------------------------------------
+orbs:
+  slack: circleci/slack@3.4.2
+
+### Executors ###
+#-------------------------------------------------
+# Section defines system executors and associated
+# variables used in the configuration.
+#-------------------------------------------------
+executors:
+  mac-executor:
+    macos:
+      xcode: "11.1.0"
+    working_directory: /Users/distiller/Projects
+
+  php-base-executor:
+    docker:
+      - image: circleci/php:7.3.6-cli-stretch
+        user: root
+        environment:
+          TERM: xterm # The TERM variable is exported explicitly here, as CircleCI does not natively set it.
+    working_directory: *working_directory
+
+  python-executor:
+    docker:
+      - image: circleci/python:3.7
+        user: root
+        environment:
+          TERM: xterm # The TERM variable is exported explicitly here, as CircleCI does not natively set it.
+    working_directory: *working_directory
+
+  python-executor-beta:
+    docker:
+      - image: cimg/python:3.7
+        user: root
+        environment:
+          TERM: xterm # The TERM variable is exported explicitly here, as CircleCI does not natively set it.
+    working_directory: *working_directory
+
+
+### Commands ###
+#-------------------------------------------------
+# Section defines reusable commands available
+# within the flow.
+#-------------------------------------------------
+commands:
+
+  #--- Custom commands below this point
+  check-env-vars:
+    description: "Verify that all required environmental variables existence exists."
+    parameters:
+        vars:
+          type: string
+    steps:
+      - run:
+          name: Verifying variable existence
+          command: |
+            bash .circleci/ci-ops/vendor/scrawlr/lib-bash-ci-services/src/variable_operations.bash testIfAllVariablesAreSet << parameters.vars >>
+
+  git-checkout:
+      description: "Git checkout"
+      parameters:
+          version:
+              type: string
+              default: "v1"
+      steps:
+        - restore_cache:
+            keys:
+              - git-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ .Branch }}-{{ .Revision }}
+              - git-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ .Branch }}-
+              - git-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-
+
+        - run:
+            name: Disable StrictHostKeyChecking for github
+            description: |
+              "This command forces permanently adding the RSA host key for Github IP in order" \
+              "to avoid https://discuss.circleci.com/t/git-clone-fails-in-circle-2-0/15211" \
+              "in a more direct way."
+            command: |
+              ssh -o StrictHostKeyChecking=no git@github.com || true
+
+        - checkout
+
+        - run:
+            name: Run git submodule update
+            command: |
+              git submodule update --recursive --remote
+              git submodule init
+              git submodule update
+
+        - run:
+            name: Run git garbage collection
+            command: git gc
+
+        - save_cache:
+            key: git-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ .Branch }}-{{ .Revision }}
+            paths:
+              - ".git"
+
+  composer-install:
+    description: "Run composer install"
+    parameters:
+        circleci-composer:
+            type: boolean
+            default: false
+        version:
+            type: string
+            default: "v1"
+        options:
+            type: string
+            default: "-n --no-progress --no-suggest --prefer-dist --profile"
+        command-working-dir-path:
+            type: string
+            default: ".circleci/.cache/composer-install"
+    steps:
+
+        - run:
+            name: Generate command working directory
+            command: |
+                ## Clear existing command working directory.
+                if [ -d << parameters.command-working-dir-path >> ]; then rm -rf << parameters.command-working-dir-path >>; fi
+
+                ## Create command working directory.
+                mkdir -p << parameters.command-working-dir-path >>
+
+                ##
+
+                if << parameters.circleci-composer >>
+                then
+                  cp .circleci/composer.lock << parameters.command-working-dir-path >>
+                else
+                  cp composer.lock << parameters.command-working-dir-path >>
+                fi
+
+
+                ls << parameters.command-working-dir-path >>
+                head << parameters.command-working-dir-path >>/composer.lock
+
+        - run:
+            name: Install composer if not available
+            command: |
+              if [[ -z $(which composer | grep -o composer) ]]; then
+                sudo apt-get update
+                sudo apt-get install composer -y
+              fi
+
+        - run:
+            name: Create temporary composer options file
+            command: |
+              echo << parameters.options >> > << parameters.command-working-dir-path >>/composer_install_options
+              echo "circleci-composer: << parameters.circleci-composer >>" >> << parameters.command-working-dir-path >>/composer_install_options
+              ##
+              cat << parameters.command-working-dir-path >>/composer_install_options
+
+        - restore_cache:
+            name: Restore composer dependency cache
+            keys:
+              - composer-cache-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ checksum "<< parameters.command-working-dir-path >>/composer_install_options" }}-{{ checksum "<< parameters.command-working-dir-path >>/composer.lock" }}
+              - composer-cache-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ checksum "<< parameters.command-working-dir-path >>/composer_install_options" }}
+
+        - when:
+            condition: << parameters.circleci-composer >>
+            steps:
+              - run:
+                  name: Install CircleCI  composer libs
+                  command: composer install --working-dir=.circleci << parameters.options >>
+
+              - save_cache:
+                  name: Save project circleci composer dependency cache
+                  key: composer-cache-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ checksum "<< parameters.command-working-dir-path >>/composer_install_options" }}-{{ checksum "<< parameters.command-working-dir-path >>/composer.lock" }}
+                  paths:
+                      - .circleci/vendor
+
+        - unless:
+            condition: << parameters.circleci-composer >>
+            steps:
+              - run:
+                  name: Install project composer libs
+                  command: composer install << parameters.options >>
+
+              - save_cache:
+                  name: Save project composer dependency cache
+                  key: composer-cache-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-<< parameters.version >>-{{ checksum "<< parameters.command-working-dir-path >>/composer_install_options" }}-{{ checksum "<< parameters.command-working-dir-path >>/composer.lock" }}
+                  paths:
+                      - vendor
+
+        - run:
+            name: Remove command working directory
+            command:
+              if [ -d << parameters.command-working-dir-path >> ]; then rm -rf << parameters.command-working-dir-path >>; fi
+
+  homebrew-install:
+      description: "Homebrew install"
+      parameters:
+          version:
+              type: string
+              default: "v014"
+      steps:
+        - run:
+            name: Create temporary homebrew options file
+            command: |
+              echo $(date +%Y-%m) > .brew_install_options
+
+        - restore_cache:
+            keys:
+              - brew-<< parameters.version >>-{{ .Branch }}-{{ checksum ".brew_install_options" }}
+              - brew-<< parameters.version >>-{{ .Branch }}-
+              - brew-<< parameters.version >>-
+
+        - run:
+            name: Brew install
+            command: |
+              export HOMEBREW_NO_AUTO_UPDATE=1
+              export HOMEBREW_NO_INSTALL_CLEANUP=1
+              brew install bash
+              brew install gnu-sed
+              echo 'export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"' >> ~/.bashrc
+              brew install composer
+
+        - save_cache:
+            key: brew-<< parameters.version >>-{{ .Branch }}-{{ checksum ".brew_install_options" }}
+            paths:
+              - "/usr/local/Homebrew"
+
+        - run:
+            name: Remove temporary homebrew options file
+            command:
+              rm .brew_install_options
+
+  github-hub-install:
+    description: "Run GitHub Hub install"
+
+    steps:
+
+        - run:
+            name: Run GitHub Hub install
+            command: |
+                ##
+                HUB_DIST=linux-amd64
+
+                ##
+                HUB_VERSION=`curl -w "%{url_effective}\n" -I -L -s -S github.com/github/hub/releases/latest -o /dev/null | \
+                awk -F'releases/tag/v' '{ print $2 }'`;
+
+                ##
+                wget "https://github.com/github/hub/releases/download/v$HUB_VERSION/hub-$HUB_DIST-$HUB_VERSION.tgz" -P /tmp
+
+                ##
+                tar fxvz "/tmp/hub-$HUB_DIST-$HUB_VERSION.tgz" -C "/tmp"
+
+                ##
+                sudo "/tmp/hub-$HUB_DIST-$HUB_VERSION"/install
+
+                ##
+                rm -rf "/tmp/hub-$HUB_DIST-$HUB_VERSION"*
+
+                echo "$(hub --version)"
+
+  scrawlr-ci-ops-install:
+    description: "Scrawlr CI Ops library install"
+
+    steps:
+
+        - run:
+            name: Run CI Ops install
+            command: |
+                ##
+                repoUrlBase='https://api.github.com/repos/scrawlr/lib-bash-ci-ops'
+
+                ##
+                releaseInfo="$(curl -sS -H "Authorization: token $GITHUB_TOKEN" $repoUrlBase/releases/latest)"
+
+                ##
+                releaseVersion="$(printf '%s' "$releaseInfo" | jq -r '.tag_name')"
+                ciOpsDistAssetId="$(printf '%s' "$releaseInfo" | jq -r '.assets[] | select(.name | startswith("ci-ops-dist-")) | .id')"
+                ciOpsDistAssetName="$(printf '%s' "$releaseInfo" | jq -r '.assets[] | select(.name | startswith("ci-ops-dist-")) | .name')"
+
+                ##
+                cd .circleci
+                rm -rf ci-ops
+                curl -LJOsS -H 'Accept: application/octet-stream' "$repoUrlBase/releases/assets/$ciOpsDistAssetId?access_token=$GITHUB_TOKEN"
+                tar -xf $ciOpsDistAssetName
+                rm $ciOpsDistAssetName
+                cd - > /dev/null
+
+                ##
+                if [ ! -d .circleci/ci-ops ]; then
+                  echo '.circleci/ci-ops directory not located, exiting.'
+                  exit 1
+                fi
+
+                echo "CI Ops library $releaseVersion successfully installed."
+
+  python-exec-libs-install:
+    description: "Install additional python executor libs. !To be moved to dedicated docker build!"
+    steps:
+
+      - run:
+          name: Update apt
+          command: |
+            sudo apt update
+            sudo apt upgrade
+
+      - run:
+          name: Add required libs
+          command: |
+            sudo apt install composer
+            sudo apt install rsync
+            sudo apt install composer
+
+
+### Jobs ###
+#-------------------------------------------------
+# Section defines individual jobs.
+#-------------------------------------------------
+jobs:
+  ## Preparation jobs ##
+  base:
+    executor: python-executor
+    resource_class: small
+    steps:
+
+      - git-checkout
+
+      - scrawlr-ci-ops-install
+
+      - composer-install
+
+      - check-env-vars:
+          vars: *required_sys_env_variables
+
+  ## Code analysis ##
+  ca-lint:
+    executor: python-executor
+    resource_class: small
+    steps:
+
+      - git-checkout
+
+      - scrawlr-ci-ops-install
+
+      - composer-install
+
+      - run:
+          name: Install ShellCheck
+          command: |
+            bash .circleci/ci-ops/vendor/scrawlr/lib-bash-core/src/index.bash call ci-services:installs/libs/shellcheck/install
+
+      - run:
+          name: Run code lint
+          command: |
+            composer lint
+
+  ## Code testing ##
+  ct-unit:
+    executor: python-executor
+    resource_class: small
+    steps:
+
+      - git-checkout
+
+      - scrawlr-ci-ops-install
+
+      - composer-install
+
+      - run:
+          name: Install Bats
+          command: |
+            bash .circleci/ci-ops/vendor/scrawlr/lib-bash-ci-services/src/install_operations.bash installBats -p '/home/circleci/.local'
+
+      - run:
+          name: Run unit
+          command: |
+            composer unit -- -t
+
+  ct-unit-mac:
+    executor: mac-executor
+    resource_class: small
+    steps:
+
+      - git-checkout:
+          version: macV1
+
+      - homebrew-install
+
+      - scrawlr-ci-ops-install
+
+      - run:
+          name: MacTest
+          command: |
+            php -v
+
+      - composer-install:
+          version: macV1
+
+      - composer-install:
+          circleci-composer: true
+          version: macV1
+
+      - check-env-vars:
+          vars: *required_sys_env_variables
+
+      - run:
+          name: Install Bats
+          command: |
+            bash .circleci/ci-ops/vendor/scrawlr/lib-bash-ci-services/src/install_operations.bash installBats -p '/'
+
+      - run:
+          name: Run unit
+          description: "The TERM variable is exported before unit tests as CircleCI does not natively set it.
+          The .bashrc is also sources at this point, to pickup up any updates."
+          command: |
+            export TERM=xterm
+            source ~/.bashrc
+            composer unit -- -t
+
+  ct-coverage:
+    executor: python-executor
+    resource_class: small
+    parameters:
+      skip-ct-coverage-steps:
+        type: boolean
+        default: false
+    steps:
+
+      - when:
+          condition: << parameters.skip-ct-coverage-steps >>
+          steps:
+
+            - run:
+                name: Evaluate need for code coverage step.
+                command: echo "Code coverage jobs/steps not needed within the flow."
+
+      - unless:
+          condition: << parameters.skip-ct-coverage-steps >>
+          steps:
+
+            - git-checkout
+
+            - scrawlr-ci-ops-install
+
+            - composer-install
+
+            - run:
+                name: Install Bats
+                command: |
+                  bash .circleci/ci-ops/vendor/scrawlr/lib-bash-ci-services/src/install_operations.bash installBats -p '/home/circleci/.local'
+
+            - run:
+                name: Install Bashcov
+                command: |
+                  bash .circleci/ci-ops/vendor/scrawlr/lib-bash-ci-services/src/install_operations.bash installKcov -p '/home/circleci/.local'
+
+            - run:
+                name: Setup Code Climate test-reporter
+                command: |
+                  curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+                  chmod +x ./cc-test-reporter
+                  mkdir coverage
+
+            - run:
+                name: Install BashForKcov
+                description: "Due to the issue with running Kcov as root, a specific Bash version is installed at this point."
+                command: |
+                  bash .circleci/ci-ops/vendor/scrawlr/lib-bash-ci-services/src/install_operations.bash installBashForKcov -f
+
+            - run:
+                command: |
+                  ./cc-test-reporter before-build
+                  kcov --clean --include-path=src/ coverage bats -r tests/bats
+                  xml="$(ls -1 coverage/bats*/cobertura.xml | head -1)"
+                  # removing trailing slash in cobertura <source>
+                  # this works around an issue with the codeclimate formatter
+                  sed -ri "s#<source>(.+)/</source>#<source>\1</source>#" "$xml"
+                  ./cc-test-reporter format-coverage $xml --input-type cobertura
+                  ./cc-test-reporter upload-coverage
+
+            - store_test_results:
+                path: coverage
+
+            - store_artifacts:
+                path: coverage
+                destination: coverage
+
+  ## Versioning ##
+  ver-generate-new-release:
+    executor: python-executor
+    resource_class: small
+    parameters:
+      execute-release-steps:
+        type: boolean
+        default: false
+    steps:
+
+      - when:
+          condition: << parameters.execute-release-steps >>
+          steps:
+
+            - *attach_workspace
+
+            - python-exec-libs-install
+
+            - checkout
+
+            - github-hub-install
+
+            - scrawlr-ci-ops-install
+
+            - check-env-vars:
+                vars: *required_sys_env_variables
+
+            - run:
+                name: Process and generate new release
+                command: |
+                  bash .circleci/ci-ops/src/index.bash call git:releases/operations/github/git::releases:operations:github:createNewReleases -v
+
+            - store_artifacts:
+                path: ~/project/.circleci/ci-ops/.cache/versioning
+                destination: logs/versioning
+                when: always
+
+            - store_artifacts:
+                path: ~/.log/scrawlr
+                destination: logs/ci
+                when: always
+
+      - unless:
+          condition: << parameters.execute-release-steps >>
+          steps:
+
+            - run:
+                name: Evaluate need for new release generation jobs/steps.
+                command: echo "New release generation jobs/steps not needed within the flow."
+
+  ## Notifications
+  versioning-release-notifications:
+    executor: python-executor
+    resource_class: small
+    steps:
+
+      - python-exec-libs-install
+
+      - checkout
+
+      - scrawlr-ci-ops-install
+
+      - check-env-vars:
+          vars: *required_sys_env_variables
+
+      - slack/notify:
+          color: '#458b00'
+          title: Version ${CIRCLE_TAG} is now available for ${CIRCLE_PROJECT_REPONAME}
+          title_link:
+          message: |
+              Version change log: https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/releases/tag/${CIRCLE_TAG}
+          webhook: $SLACK_TEST_WEBHOOK
+
+
+### Workflows ###
+#-------------------------------------------------
+# Section defines individual workflows.
+#-------------------------------------------------
+workflows:
+    version: 2.1
+
+    base-build:
+      jobs:
+
+        - base:
+            context: github-automation
+
+        - ca-lint:
+            context: github-automation
+            requires:
+              - base
+
+        - ct-unit:
+            context: github-automation
+            requires:
+              - base
+
+        # - ct-unit-mac:
+        #     requires:
+        #       - base
+        #       - ct-unit
+
+        - ct-coverage:
+            context: github-automation
+            skip-ct-coverage-steps: << pipeline.parameters.execute-new-release-workflow >>
+            requires:
+              - base
+
+        - ver-generate-new-release:
+            context: github-automation
+            execute-release-steps: << pipeline.parameters.execute-new-release-workflow >>
+            requires:
+              - base
+              - ca-lint
+              - ct-unit
+
+    tag-new-release-workflow:
+      triggers:
+        - schedule:
+            cron: *release-workflow-cron
+            filters:
+              branches:
+                only:  # only branches matching the below regex filters will run
+                  - master
+      jobs:
+
+        - ver-generate-new-release:
+            context: github-automation
+            execute-release-steps: true
+
+    new-release-completed-workflow:
+      jobs:
+        - versioning-release-notifications:
+            context: github-automation
+            filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
