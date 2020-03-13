@@ -11,7 +11,7 @@ ARG nginx_user_name=nginx
 ARG nginx_user_id=25874
 
 
-ARG cont_user_group=appgroup
+# ARG cont_user_group=appgroup
 ARG cont_user_name=appuser
 ARG cont_user_id=15874
 
@@ -37,12 +37,11 @@ RUN adduser ${nginx_user_name} \
         --uid ${nginx_user_id}
 
 ## Create the container user and corresponding user group.
-RUN addgroup ${cont_user_group} && \
-    adduser ${cont_user_name} \
+RUN adduser ${cont_user_name} \
+        --group \
         --gecos "" \
         --disabled-password \
-        --uid ${cont_user_id} \
-        --ingroup ${cont_user_group}
+        --uid ${cont_user_id}
 
 
 
@@ -69,9 +68,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
 ##
-RUN apt-get update
+# RUN apt-get update
 
-RUN apt-get install software-properties-common -y
+RUN apt-get update && \
+    apt-get install software-properties-common -y
 
 RUN add-apt-repository ppa:ondrej/php && \
     add-apt-repository ppa:nginx/mainline
@@ -93,28 +93,26 @@ ENV build_deps_python \
 ## Set persistent dependencies.
 ENV persistent_deps \
         php${php_version} \
-        # php7-bcmath \
-        # php7-ctype \
         php${php_version}-curl \
         php${php_version}-dom \
-        # php7-fileinfo \
         php${php_version}-fpm \
         php${php_version}-gd \
-        # php7-igbinary \
-        # php7-intl \
+        php${php_version}-imagick \
         php${php_version}-json \
-        # php7-mbstring \
         php${php_version}-opcache \
-        # php7.4-openssl \
-        # php7-pdo_pgsql \
         php${php_version}-mysql \
         php${php_version}-zip \
-        # php7-redis \
-        # php7.4-simplexml \
-        # php7-tokenizer \
         php${php_version}-xml \
         nginx \
         supervisor
+
+
+
+# RUN apk --update --no-cache add less bash su-exec mysql-client freetype-dev libjpeg-turbo-dev libpng-dev \
+#     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+#     && docker-php-ext-install gd mysqli opcache
+
+
 
 ## Set persistent dependencies for Python.
 ENV persistent_deps_python \
@@ -151,11 +149,11 @@ RUN apt-get install -y --no-install-recommends $persistent_deps
 # Install persistent dependencies
 # RUN apk add --update --no-cache --virtual .persistent-dependencies $persistent_deps
 
-RUN python2 -V
+# RUN python2 -V
 # RUN python3 -V
-RUN pip2 -V
+# RUN pip2 -V
 
-RUN ls /home
+# RUN ls /home
 
 # Install supervisord-stdout
 RUN pip install wheel
@@ -226,6 +224,9 @@ RUN apt-get update -y && \
     apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
 
+
+
+
 # RUN ls /home/${cont_user_name}
 ##
 # RUN chown ${cont_user_name}:${cont_user_group} -R /home/${cont_user_name}/app && chown ${cont_user_name}:${cont_user_group} -R /home/${cont_user_name}/storage
@@ -247,6 +248,11 @@ WORKDIR ${appPath}
 COPY . ${appPath}
 
 
+
+
+
+
+
 # RUN ls -alh /etc/apk/repositories
 # RUN du /etc/apk/repositories
 # RUN du -h -d 1 -c /
@@ -260,137 +266,12 @@ COPY . ${appPath}
 ##
 USER root
 
+
+##
+RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads
+
 # EXPOSE PORTS!
 EXPOSE ${nginx_port}
 
 # KICKSTART!
 CMD ["/start.sh"]
-
-
-# docker build --rm -t test01 .
-
-
-# docker run -p 9080:80 b9076337ac9b
-
-
-# ARG APPLICATION_PATH=/app
-# ENV APK_ADD="bash curl nodejs nodejs-npm yarn" \
-#     APK_DEL="bash curl yarn" \
-#     USERNAME="appuser" \
-    # USER_ID="1000"
-
-
-
-
-
-# Set working directory as
-# WORKDIR /home/$contUser/project
-
-# # Copy application files into image
-# COPY . /home/$contUser/project
-
-
-
-
-
-
-
-
-
-
-
-
-# RUN apk add --update --upgrade bash git curl openssl
-
-# RUN apk add php7 \
-#     # REQUIRED BY COMPOSER
-#     php7-json \
-#     # REQUIRED BY COMPOSER
-#     php7-phar \
-#     # REQUIRED BY COMPOSER
-#     php7-iconv \
-#     # REQUIRED BY COMPOSER
-#     php7-openssl \
-#     # REQUIRED BY COMPOSER
-#     php7-zlib \
-#     # REQUIRED BY COMPOSER iconv operations
-#     php7-mbstring \
-#     # REQUIRED BY LUMEN
-#     php7-zip \
-#     # REQUIRED BY LUMEN & ARTISAN (migrate)
-#     php7-pdo \
-#     # REQUIRED BY LUMEN & ARTISAN (migrate)
-#     php7-memcached \
-#     # REQUIRED BY LUMEN & ARTISAN (migrate)
-#     php7-pdo_pgsql \
-#     # REQUIRED BY PHPUNIT
-#     php7-iconv \
-#     # REQUIRED BY PHPUNIT
-#     php7-dom \
-#     # REQUIRED BY ARTISAN (db:seed)
-#     php7-ctype \
-#     # REQUIRED BY ARTISAN (migration with alter table)
-#     php7-tokenizer \
-#     php7-xmlwriter \
-#     php7-xml \
-#     php7-fpm \
-#     composer
-
-
-
-
-
-
-
-
-
-
-
-
-# RUN addgroup -S app-data && adduser -S $contUser -G app-data
-
-# RUN addgroup -S app-data && adduser -S appuser -G app-data
-
-
-
-
-
-# RUN addgroup -g 1000 -S app-data \
-#     && adduser -u 1000 -D -S -G app-data app
-
-# USER app
-
-# TODO remove unecesary accounts
-# RUN groups
-# RUN cat /etc/passwd
-
-
-## Setup and process .env
-# RUN cp .env.example .env
-
-
-# RUN ls -alh ${appPath}
-# RUN ls -alh /
-
-
-
-
-
-
-
-
-
-
-# ## Create container user
-# RUN adduser -H -D ${contUserName} -u ${contUserId}
-
-# ## Tell docker that all future commands should run as the appuser user
-# USER $contUserName
-
-
-
-
-
-# EXPOSE 9000
-
-
