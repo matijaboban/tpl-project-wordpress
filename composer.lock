@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f77c9ccb7ad59bb5159c9d1c1e0fedb3",
+    "content-hash": "08c67db0055582a59df0d383ddba737e",
     "packages": [
         {
             "name": "composer/installers",
@@ -539,6 +539,24 @@
                 "environment"
             ],
             "time": "2020-03-12T13:44:15+00:00"
+        },
+        {
+            "name": "wpackagist-plugin/disable-comments",
+            "version": "1.10.2",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/disable-comments/",
+                "reference": "trunk"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/disable-comments.zip?timestamp=1563798431"
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/disable-comments/"
         }
     ],
     "packages-dev": [

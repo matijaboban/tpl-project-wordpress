@@ -703,3 +703,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+### wpackagist-plugin/disable-comments (Version 1.10.2 | trunk)
+Not configured.
+Homepage: https://wordpress.org/plugins/disable-comments/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
