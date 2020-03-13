@@ -26,6 +26,14 @@ phpunit-printer.yml
 ## CI process specific
 .circleci/ci-ops*
 
+## Wordpress project
+web/app/plugins/*
+web/app/mu-plugins/*/
+web/app/upgrade
+web/app/uploads/*
+web/wp
+web/.htaccess
+
 ## misc.
 /.idea
 /nbproject/
