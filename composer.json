@@ -47,18 +47,24 @@
   },
   "scripts": {
     "post-root-package-install": [
-      "php -r \"copy('.env.example', '.env');\""
+      "php -r \"copy('.env.example', '.env');\"",
+      "@wp:themes:remove-legacy"
     ],
     "post-install-cmd": [
-        "@generate-licenses"
+        "@generate-licenses",
+        "@wp:themes:remove-legacy"
     ],
     "post-update-cmd": [
-        "@generate-licenses"
+        "@generate-licenses",
+        "@wp:themes:remove-legacy"
     ],
     "generate-licenses": [
         "vendor/bin/php-legal-licenses generate",
         "mkdir -p docs/licenses",
         "mv licenses.md docs/licenses/project_dependencies_legal_licenses.md"
+    ],
+    "wp:themes:remove-legacy": [
+        "find web/wp/wp-content/themes/ -mindepth 1 -maxdepth 1 -type d -not -iname 'twentytwenty' -exec rm -rf {} +"
     ],
     "test": [
       "phpcs"

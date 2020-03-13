@@ -50,7 +50,7 @@ services:
       scrw_internal:
           ipv4_address: 172.48.20.0
     environment:
-      ## Use % to allow remote access to all addresses. 
+      ## Use % to allow remote access to all addresses.
       ## Generally not recommended by some people to allow for root.
       # MYSQL_ROOT_HOST: '%'
       # MYSQL_ROOT_HOST: '172.28.0.2/255.255.255.248'
@@ -95,8 +95,12 @@ services:
       - 5780:8080
     depends_on:
       - database
-    links:
-      - database
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: mysql
+      ADMINER_DEFAULT_DB_HOST: database
+      ADMINER_DEFAULT_DB_NAME: ${DB_NAME:-scrw_wp_db}
+      ADMINER_DESIGN: nette
+      ADMINER_PLUGINS: tables-filter tinymce
     # labels:
       # - 'scrw.enable=true'
       # - 'scrw.backend=${APP_NAME}_adminer'
@@ -124,7 +128,7 @@ networks:
 #     driver_opts:
 #       device: $PWD/.cache/
 
-    
+
 
 
 # 172.28.0.2

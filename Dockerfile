@@ -99,6 +99,7 @@ ENV persistent_deps \
         php${php_version}-dom \
         # php7-fileinfo \
         php${php_version}-fpm \
+        php${php_version}-gd \
         # php7-igbinary \
         # php7-intl \
         php${php_version}-json \
@@ -107,6 +108,7 @@ ENV persistent_deps \
         # php7.4-openssl \
         # php7-pdo_pgsql \
         php${php_version}-mysql \
+        php${php_version}-zip \
         # php7-redis \
         # php7.4-simplexml \
         # php7-tokenizer \
@@ -144,7 +146,7 @@ RUN apt-get install -y --no-install-recommends $build_deps
 # RUN pip3 --version && pip list
 
 # Install persistent dependencies
-RUN apt-get install -y --no-install-recommends $persistent_deps 
+RUN apt-get install -y --no-install-recommends $persistent_deps
 
 # Install persistent dependencies
 # RUN apk add --update --no-cache --virtual .persistent-dependencies $persistent_deps
@@ -160,7 +162,7 @@ RUN pip install wheel
 RUN pip install supervisor-stdout
 
 
-## 
+##
 # RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime
 # RUN dpkg-reconfigure --frontend noninteractive tzdata
 
