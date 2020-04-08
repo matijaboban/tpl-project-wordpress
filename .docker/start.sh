@@ -141,9 +141,9 @@ echo 'Container deploy start' >&1
 ## pm.max
 #TODO
 
-# pmMaxChildren=$(calculatePmMaxChildren)
-# sed -i -e "s/pm.max_children = 5/pm.max_children = ${pmMaxChildren}/g" /etc/php/7.4/php-fpm.d/www.conf
-# echo "pm.max_children set to: $pmMaxChildren" >&1
+pmMaxChildren=$(calculatePmMaxChildren)
+sed -i -e "s/pm.max_children = 5/pm.max_children = ${pmMaxChildren}/g" /etc/php/7.4/php-fpm.d/www.conf
+echo "pm.max_children set to: $pmMaxChildren" >&1
 
 # echo '09' >> /home/appuser/app/storage/logs/temp.log
 
