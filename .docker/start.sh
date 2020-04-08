@@ -29,14 +29,14 @@ compileOpcache ()
 calculatePmMaxChildren ()
 {
     #
-    usageEstimate=50000
+    usageEstimate=60000
 
 
     # Available memory in kb
     mem=$(cat /proc/meminfo | grep "MemAvailable:" | awk -F ' ' '{print $2}')
 
     #
-    usableMem=$((($mem/100)*80))
+    usableMem=$((($mem/100)*50))
 
     maxChildren=$(($usableMem/$usageEstimate))
 
@@ -142,8 +142,10 @@ echo 'Container deploy start' >&1
 #TODO
 
 pmMaxChildren=$(calculatePmMaxChildren)
-sed -i -e "s/pm.max_children = 5/pm.max_children = ${pmMaxChildren}/g" /etc/php/7.4/php-fpm.d/www.conf
+sed -i -e "s/pm.max_children = 5/pm.max_children = ${pmMaxChildren}/g" /etc/php/7.4/fpm/pool.d/www.conf
 echo "pm.max_children set to: $pmMaxChildren" >&1
+
+cat /proc/meminfo >&1
 
 # echo '09' >> /home/appuser/app/storage/logs/temp.log
 
@@ -220,6 +222,6 @@ echo "pm.max_children set to: $pmMaxChildren" >&1
 # echo $(compileOpcache) >&1
 
 # START SUPERVISOR.
-# echo 'START SUPERVISOR' >> /home/appuser/app/storage/logs/temp.log
-# echo 'START SUPERVISOR' >&1
+#echo 'START SUPERVISOR' >> /home/appuser/app/storage/logs/temp.log
+echo 'START SUPERVISOR' >&1
 exec /usr/bin/supervisord -n -c /etc/supervisord.conf
