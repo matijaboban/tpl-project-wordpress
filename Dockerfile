@@ -76,12 +76,16 @@ RUN apt-get update && \
 RUN add-apt-repository ppa:ondrej/php && \
     add-apt-repository ppa:nginx/mainline
 
+RUN apt-get update --fix-missing
+
 ## Set build dependencies.
 ENV build_deps \
         # python3 \
         python-setuptools \
-        python-pip
-        # wget
+        python-pip \
+        gcc \
+        g++ \
+        wget
         # python3-pip
         # software-properties-common \
         # composer \
@@ -92,6 +96,8 @@ ENV build_deps_python \
 
 ## Set persistent dependencies.
 ENV persistent_deps \
+        brotli \
+        iputils-ping \
         php${php_version} \
         php${php_version}-curl \
         php${php_version}-dom \
@@ -100,6 +106,8 @@ ENV persistent_deps \
         php${php_version}-imagick \
         php${php_version}-json \
         php${php_version}-opcache \
+        # php${php_version}-memcached \
+        php${php_version}-redis \
         php${php_version}-mysql \
         php${php_version}-zip \
         php${php_version}-xml \
@@ -155,6 +163,8 @@ RUN apt-get install -y --no-install-recommends $persistent_deps
 
 # RUN ls /home
 
+
+
 # Install supervisord-stdout
 RUN pip install wheel
 RUN pip install supervisor-stdout
@@ -178,6 +188,9 @@ RUN mkdir -p /run/php && \
     mkdir -p /etc/nginx/sites-enabled && \
     mkdir -p /etc/nginx/sites-available
 
+
+# Remove default scripts
+RUN rm /etc/php/${php_version}/fpm/pool.d/*.conf
 
 # ADD START SCRIPT, SUPERVISOR CONFIG, NGINX CONFIG AND RUN SCRIPTS.
 ADD .docker/start.sh /start.sh
@@ -248,11 +261,6 @@ WORKDIR ${appPath}
 COPY . ${appPath}
 
 
-
-
-
-
-
 # RUN ls -alh /etc/apk/repositories
 # RUN du /etc/apk/repositories
 # RUN du -h -d 1 -c /
@@ -266,9 +274,31 @@ COPY . ${appPath}
 ##
 USER root
 
+## Additional file/directory generation
+RUN mkdir ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
+#RUN mkdir ${appPath}/web/.configs/w3tc
 
-##
-RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads
+# Additional file processing
+RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/advanced-cache.php ${appPath}/web/app/advanced-cache.php
+RUN rm -rf ${appPath}/.docker
+RUN rm -rf ${appPath}/composer.*
+
+## Additional permision processign
+RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads ${appPath}/web/.cache ${appPath}/web/.configs
+#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/.cache
+#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/.configs
+RUN chmod 777 -R ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
+RUN chmod 777 -R ${appPath}/web/app/uploads
+
+
+RUN ls -alh ${appPath}/web/
+RUN ls -alh ${appPath}/web/app/uploads
+RUN ls -alh ${appPath}/web/.cache
+RUN ls -alh ${appPath}/web/.configs
+
+#RUN mkdir ${appPath}/foo && chown ${nginx_user_name}:${nginx_user_name} ${appPath}/foo  
+# empty, but owned by `nicolas`. Could also have some initial content
+#VOLUME /foo  
 
 # EXPOSE PORTS!
 EXPOSE ${nginx_port}

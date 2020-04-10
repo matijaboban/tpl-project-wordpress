@@ -2,13 +2,15 @@ version: '3.4'
 
 services:
   app:
-    image: test01:latest
+    #image: test01:latest
+    build: .
     restart: always
     container_name: ${APP_NAME}_app
     ports:
       - 5580:80
     depends_on:
       - database
+      - redis
     # links:
       # - php
     networks:
@@ -18,7 +20,8 @@ services:
     environment:
       # - DATABASE_URL='mysql://wp_db_user:wp_db_password@172.28.0.2:3306/wordpress'
       - DB_HOST=${DB_HOST:-172.48.20.0}
-      - WP_HOME=${DB_HOST:-http://172.48.10.0}
+      - WP_HOME=${WP_HOME:-http://172.48.10.0}
+      - REDIS_SERVERS=${REDIS_SERVERS:-172.48.20.1}
     labels:
       - 'scrw.backend=${APP_NAME}'
       - 'scrw.docker.network=scrw_wp_external'
@@ -26,11 +29,21 @@ services:
       - 'scrw.enable=true'
       - 'scrw.port=80'
     volumes:
+      #- ./local/public:/home/appuser/app/web/app/uploads
+      
+
+      #- db-data:/home/appuser/foo
+      
+      #- .cache/app/storage/cache:/home/appuser/app/web/.cache
+      #- .cache/app/storage/configs:/home/appuser/app/web/.configs
+      
       # - ./config/nginx:/etc/nginx/conf.d
-      - .cache/app/logs/nginx:/var/log/nginx
-      - .cache/app/logs/php:/var/log/php
+      
+      #- .cache/app/logs/nginx:/var/log/nginx
+      #- .cache/app/logs/php:/var/log/php
       - .cache/app/logs/supervisor:/var/log/supervisor
-      - .cache/app/uploads:/home/appuser/app/web/app/uploads
+      
+      #- .cache/app/uploads:/home/appuser/app/web/app/uploads
       # - type: bind
       #   source: /home/appuser/app/web/app/uploads
       #   target: .cache/app/uploads
@@ -69,6 +82,40 @@ services:
     # volumes:
     #   - 'mysql_data:/var/lib/mysql'
 
+  redis:
+    image: redis:5.0.8
+    container_name: ${APP_NAME}_redis
+    restart: always
+    ports:
+      - '6379:6379'
+    # command: [
+    #     '--default_authentication_plugin=mysql_native_password',
+    #     '--character-set-server=utf8mb4',
+    #     '--collation-server=utf8mb4_unicode_ci'
+    # ]
+    networks:
+      scrw_internal:
+          ipv4_address: 172.48.20.1
+    #environment:
+      ## Use % to allow remote access to all addresses.
+      ## Generally not recommended by some people to allow for root.
+      # MYSQL_ROOT_HOST: '%'
+      # MYSQL_ROOT_HOST: '172.28.0.2/255.255.255.248'
+      #MYSQL_ROOT_PASSWORD: scrw_db_root_password
+      # MYSQL_USER: mybb
+      # MYSQL_PASSWORD: password
+      # MYSQL_DATABASE: mybb
+      # - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      #MYSQL_USER: ${DB_USER:-scrw_wp_user}
+      #MYSQL_PASSWORD: ${DB_PASSWORD:-scrw_wp_password}
+      #MYSQL_DATABASE: ${DB_NAME:-scrw_wp_db}
+    # volumes:
+    #   - '.cache/database:/var/lib/mysql'
+    volumes:
+      - '.cache/redis:/var/lib/redis'
+    # volumes:
+    #   - 'mysql_data:/var/lib/mysql'
+
   # php:
   #   restart: always
   #   container_name: ${APP_NAME}_php
@@ -87,18 +134,21 @@ services:
   #   volumes:
   #     - ./web:/var/www/html
   #     - ./config/php.ini:/usr/local/etc/php/conf.d/php.ini
+  
+
+
 
   adminer:
     image: adminer:latest
     restart: always
     ports:
-      - 5780:8080
+      - 5780:80
     depends_on:
       - database
     environment:
       ADMINER_DEFAULT_DB_DRIVER: mysql
-      ADMINER_DEFAULT_DB_HOST: database
-      ADMINER_DEFAULT_DB_NAME: ${DB_NAME:-scrw_wp_db}
+      #ADMINER_DEFAULT_DB_HOST: database
+      #ADMINER_DEFAULT_DB_NAME: ${DB_NAME:-scrw_wp_db}
       ADMINER_DESIGN: nette
       ADMINER_PLUGINS: tables-filter tinymce
     # labels:
@@ -119,6 +169,10 @@ networks:
     ipam:
       config:
         - subnet: 172.48.0.0/16
+
+
+volumes:
+    db-data:
 
 # volumes:
 #   # mysql_data:

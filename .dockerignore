@@ -7,7 +7,7 @@
 .tools
 build
 benchmarks
-documentation
+docs
 tests
 
 # files

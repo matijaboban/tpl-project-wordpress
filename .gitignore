@@ -34,6 +34,9 @@ web/app/uploads/*
 web/wp
 web/.htaccess
 
+## Wordpress persisten configurations
+web/.configs/*
+
 ## misc.
 /.idea
 /nbproject/

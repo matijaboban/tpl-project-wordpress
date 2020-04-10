@@ -29,14 +29,14 @@ compileOpcache ()
 calculatePmMaxChildren ()
 {
     #
-    usageEstimate=60000
+    usageEstimate=50000
 
 
     # Available memory in kb
     mem=$(cat /proc/meminfo | grep "MemAvailable:" | awk -F ' ' '{print $2}')
 
     #
-    usableMem=$((($mem/100)*50))
+    usableMem=$((($mem/100)*70))
 
     maxChildren=$(($usableMem/$usageEstimate))
 
@@ -45,6 +45,11 @@ calculatePmMaxChildren ()
     fi
 
     echo $maxChildren
+}
+
+getProcessingUnitCount ()
+{
+    nproc
 }
 
 
@@ -142,8 +147,15 @@ echo 'Container deploy start' >&1
 #TODO
 
 pmMaxChildren=$(calculatePmMaxChildren)
-sed -i -e "s/pm.max_children = 5/pm.max_children = ${pmMaxChildren}/g" /etc/php/7.4/fpm/pool.d/www.conf
+puCount=$(getProcessingUnitCount)
+sed -i -e "s/pm.max_children = .*$/pm.max_children = ${pmMaxChildren}/g" /etc/php/7.4/fpm/pool.d/app.conf
+sed -i -e "s/pm.start_servers = .*$/pm.start_servers = $(($puCount * 4))/g" /etc/php/7.4/fpm/pool.d/app.conf
+sed -i -e "s/pm.min_spare_servers = .*$/pm.min_spare_servers = $(($puCount * 2))/g" /etc/php/7.4/fpm/pool.d/app.conf
+sed -i -e "s/pm.max_spare_servers = .*$/pm.max_spare_servers = $(($puCount * 4))/g" /etc/php/7.4/fpm/pool.d/app.conf
+sed -i -e "s/pm.max_requests = .*$/pm.max_requests = 1000/g" /etc/php/7.4/fpm/pool.d/app.conf
 echo "pm.max_children set to: $pmMaxChildren" >&1
+
+echo "puCount: $puCount" >&1
 
 cat /proc/meminfo >&1
 

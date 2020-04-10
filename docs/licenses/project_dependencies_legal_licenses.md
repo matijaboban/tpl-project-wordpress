@@ -715,3 +715,15 @@ Homepage: https://wordpress.org/plugins/disable-comments/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
+### wpackagist-plugin/w3-total-cache (Version 0.13.2 | tags/0.)
+Not configured.
+Homepage: https://wordpress.org/plugins/w3-total-cache/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
+### wpackagist-plugin/wp-maintenance-mode (Version 2.2.4 | tags/2.)
+Not configured.
+Homepage: https://wordpress.org/plugins/wp-maintenance-mode/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
