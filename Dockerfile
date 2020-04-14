@@ -106,7 +106,6 @@ ENV persistent_deps \
         php${php_version}-imagick \
         php${php_version}-json \
         php${php_version}-opcache \
-        # php${php_version}-memcached \
         php${php_version}-redis \
         php${php_version}-mysql \
         php${php_version}-zip \
@@ -261,16 +260,6 @@ WORKDIR ${appPath}
 COPY . ${appPath}
 
 
-# RUN ls -alh /etc/apk/repositories
-# RUN du /etc/apk/repositories
-# RUN du -h -d 1 -c /
-# RUN du -h -d 1 -c /usr
-# RUN du -h -d 1 -c /usr/lib
-# RUN du -h -d 1 -c /usr/local
-# RUN du -h -d 1 -c /usr/local/bin
-# RUN ls -alh /usr/local/bin
-# RUN df -h
-
 ##
 USER root
 
@@ -280,6 +269,7 @@ RUN mkdir ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
 
 # Additional file processing
 RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/advanced-cache.php ${appPath}/web/app/advanced-cache.php
+RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/object-cache.php ${appPath}/web/app/object-cache.php
 RUN rm -rf ${appPath}/.docker
 RUN rm -rf ${appPath}/composer.*
 
@@ -289,12 +279,12 @@ RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads ${
 #RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/.configs
 RUN chmod 777 -R ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
 RUN chmod 777 -R ${appPath}/web/app/uploads
+ADD .docker/wordpress/w3tc/master.php ${appPath}/web/.configs/w3tc/master.php
 
-
-RUN ls -alh ${appPath}/web/
-RUN ls -alh ${appPath}/web/app/uploads
-RUN ls -alh ${appPath}/web/.cache
-RUN ls -alh ${appPath}/web/.configs
+#RUN ls -alh ${appPath}/web/
+#RUN ls -alh ${appPath}/web/app/uploads
+#RUN ls -alh ${appPath}/web/.cache
+RUN ls -alh ${appPath}/web/.configs/w3tc
 
 #RUN mkdir ${appPath}/foo && chown ${nginx_user_name}:${nginx_user_name} ${appPath}/foo  
 # empty, but owned by `nicolas`. Could also have some initial content

@@ -124,9 +124,9 @@ if (file_exists($env_config)) {
 }
 
 
+Config::define('WP_CACHE', env('WP_CACHE'));
 Config::define('W3TC_CACHE_DIR', $webroot_dir . '/.cache/w3tc');
 Config::define('W3TC_CONFIG_DIR', $webroot_dir . '/.configs/w3tc');
-
 Config::define('W3TC_CONFIG_CACHE_REDIS_SERVERS', env('REDIS_SERVERS'));
 
 Config::apply();

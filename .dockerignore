@@ -1,5 +1,6 @@
 # directories
 .git
+.github
 .cache
 .circleci
 .rulesets

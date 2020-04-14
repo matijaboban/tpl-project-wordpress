@@ -667,7 +667,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-### vlucas/phpdotenv (Version v4.1.3 | 88f7acc)
+### vlucas/phpdotenv (Version v4.1.4 | feb6dad)
 Loads environment variables from `.env` to `getenv()`, `$_ENV` and `$_SERVER` automagically.
 Homepage: Not configured.
 Licenses Used: BSD-3-Clause
@@ -712,6 +712,30 @@ Full license text not found in dependency source.
 ### wpackagist-plugin/disable-comments (Version 1.10.2 | trunk)
 Not configured.
 Homepage: https://wordpress.org/plugins/disable-comments/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
+### wpackagist-plugin/getwid (Version 1.5.4 | tags/1.)
+Not configured.
+Homepage: https://wordpress.org/plugins/getwid/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
+### wpackagist-plugin/mailgun (Version 1.7.1 | tags/1.)
+Not configured.
+Homepage: https://wordpress.org/plugins/mailgun/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
+### wpackagist-plugin/twentig (Version 0.9 | tags/0.)
+Not configured.
+Homepage: https://wordpress.org/plugins/twentig/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
+### wpackagist-plugin/typeform (Version 1.3.0 | tags/1.)
+Not configured.
+Homepage: https://wordpress.org/plugins/typeform/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
