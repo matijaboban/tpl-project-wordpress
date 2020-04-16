@@ -44,6 +44,7 @@
     "wpackagist-plugin/twentig": "^0.9.0",
     "wpackagist-plugin/typeform": "^1.3",
     "wpackagist-plugin/w3-total-cache": "^0.13",
+    "wpackagist-plugin/wordpress-seo": "^13.5",
     "wpackagist-plugin/wp-maintenance-mode": "^2.2"
   },
   "require-dev": {
@@ -59,11 +60,13 @@
     ],
     "post-install-cmd": [
         "@generate-licenses",
-        "@wp:themes:remove-legacy"
+        "@wp:themes:remove-legacy",
+        "@wp:plugins:move-to-mu"
     ],
     "post-update-cmd": [
         "@generate-licenses",
-        "@wp:themes:remove-legacy"
+        "@wp:themes:remove-legacy",
+        "@wp:plugins:move-to-mu"
     ],
     "generate-licenses": [
         "vendor/bin/php-legal-licenses generate",
@@ -72,6 +75,11 @@
     ],
     "wp:themes:remove-legacy": [
         "find web/wp/wp-content/themes/ -mindepth 1 -maxdepth 1 -type d -not -iname 'twentytwenty' -exec rm -rf {} +"
+    ],
+    "wp:plugins:move-to-mu": [
+      "find web/app/mu-plugins/installable -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +",
+      "mv web/app/plugins/w3-total-cache web/app/mu-plugins/installable",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/w3-total-cache/w3-total-cache.php\";' > web/app/mu-plugins/installable_w3-total-cache.php"
     ],
     "test": [
       "phpcs"

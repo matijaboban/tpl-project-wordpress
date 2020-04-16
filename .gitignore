@@ -29,6 +29,7 @@ phpunit-printer.yml
 ## Wordpress project
 web/app/plugins/*
 web/app/mu-plugins/*/
+web/app/mu-plugins/installable_*.php
 web/app/upgrade
 web/app/uploads/*
 web/wp

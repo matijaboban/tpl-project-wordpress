@@ -745,6 +745,12 @@ Homepage: https://wordpress.org/plugins/w3-total-cache/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
+### wpackagist-plugin/wordpress-seo (Version 13.5 | tags/13)
+Not configured.
+Homepage: https://wordpress.org/plugins/wordpress-seo/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
 ### wpackagist-plugin/wp-maintenance-mode (Version 2.2.4 | tags/2.)
 Not configured.
 Homepage: https://wordpress.org/plugins/wp-maintenance-mode/

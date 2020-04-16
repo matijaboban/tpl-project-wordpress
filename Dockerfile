@@ -96,8 +96,9 @@ ENV build_deps_python \
 
 ## Set persistent dependencies.
 ENV persistent_deps \
-        brotli \
-        iputils-ping \
+        #brotli \
+        #iputils-ping \
+        curl \
         php${php_version} \
         php${php_version}-curl \
         php${php_version}-dom \
@@ -111,6 +112,7 @@ ENV persistent_deps \
         php${php_version}-zip \
         php${php_version}-xml \
         nginx \
+        #sudo \
         supervisor
 
 
@@ -153,6 +155,11 @@ RUN apt-get install -y --no-install-recommends $build_deps
 # Install persistent dependencies
 RUN apt-get install -y --no-install-recommends $persistent_deps
 
+# Run manual installs
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp
+
 # Install persistent dependencies
 # RUN apk add --update --no-cache --virtual .persistent-dependencies $persistent_deps
 
@@ -169,16 +176,8 @@ RUN pip install wheel
 RUN pip install supervisor-stdout
 
 
-##
-# RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime
-# RUN dpkg-reconfigure --frontend noninteractive tzdata
 
-# RUN php -v
-# RUN nginx -v
-
-# RUN apt purge php7.2*
-# RUN apt purge php7.3*
-
+## Directory generation
 RUN mkdir -p /run/php && \
     mkdir -p /run/nginx && \
     mkdir -p /run/supervisord && \
@@ -188,11 +187,11 @@ RUN mkdir -p /run/php && \
     mkdir -p /etc/nginx/sites-available
 
 
+
 # Remove default scripts
 RUN rm /etc/php/${php_version}/fpm/pool.d/*.conf
 
 # ADD START SCRIPT, SUPERVISOR CONFIG, NGINX CONFIG AND RUN SCRIPTS.
-ADD .docker/start.sh /start.sh
 ADD .docker/supervisor/supervisord.conf /etc/supervisord.conf
 ADD .docker/supervisor/supervisord-program_*.conf /etc/
 ADD .docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -200,7 +199,9 @@ ADD .docker/nginx/site.conf /etc/nginx/sites-available/default
 ADD .docker/php-fpm/php.ini /etc/php/${php_version}/fpm/php.ini
 ADD .docker/php-fpm/php-fpm.conf /etc/php/${php_version}/fpm/php-fpm.conf
 ADD .docker/php-fpm/pool.app.conf /etc/php/${php_version}/fpm/pool.d/app.conf
-RUN chmod 755 /start.sh
+ADD .env.example ${appPath}/.env
+ADD .docker/start.bash /start.bash
+RUN chmod 755 /start.bash
 
 
 # RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
@@ -260,18 +261,23 @@ WORKDIR ${appPath}
 COPY . ${appPath}
 
 
+
 ##
 USER root
 
 ## Additional file/directory generation
-RUN mkdir ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
-#RUN mkdir ${appPath}/web/.configs/w3tc
+RUN mkdir -p ${appPath}/web/.cache/w3tc && \
+    mkdir -p ${appPath}/web/.configs/w3tc
+
+
 
 # Additional file processing
 RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/advanced-cache.php ${appPath}/web/app/advanced-cache.php
 RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/object-cache.php ${appPath}/web/app/object-cache.php
+RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/db.php ${appPath}/web/app/db.php
 RUN rm -rf ${appPath}/.docker
 RUN rm -rf ${appPath}/composer.*
+ADD .docker/wordpress/w3tc/master.php ${appPath}/web/.configs/w3tc/master.php
 
 ## Additional permision processign
 RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads ${appPath}/web/.cache ${appPath}/web/.configs
@@ -279,7 +285,7 @@ RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads ${
 #RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/.configs
 RUN chmod 777 -R ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
 RUN chmod 777 -R ${appPath}/web/app/uploads
-ADD .docker/wordpress/w3tc/master.php ${appPath}/web/.configs/w3tc/master.php
+
 
 #RUN ls -alh ${appPath}/web/
 #RUN ls -alh ${appPath}/web/app/uploads
@@ -290,8 +296,13 @@ RUN ls -alh ${appPath}/web/.configs/w3tc
 # empty, but owned by `nicolas`. Could also have some initial content
 #VOLUME /foo  
 
+
+
+
+
+
 # EXPOSE PORTS!
 EXPOSE ${nginx_port}
 
 # KICKSTART!
-CMD ["/start.sh"]
+CMD ["/start.bash"]

@@ -1,3 +1,8 @@
 path: web/wp
 server:
   docroot: web
+disabled_commands:
+  - db drop
+  - plugin install
+#require:
+# - web/wp-config.php

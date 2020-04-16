@@ -24,7 +24,7 @@
     "dbcache.memcached.binary_protocol": true,
     "dbcache.redis.persistent": true,
     "dbcache.redis.servers": [
-        "172.48.20.1:6379"
+        "127.0.0.1:6379"
     ],
     "dbcache.redis.password": "",
     "dbcache.redis.dbid": 0,
@@ -105,7 +105,7 @@
     "objectcache.memcached.binary_protocol": true,
     "objectcache.redis.persistent": true,
     "objectcache.redis.servers": [
-        "172.48.20.1:6379"
+        "127.0.0.1:6379"
     ],
     "objectcache.redis.password": "",
     "objectcache.redis.dbid": 0,
@@ -149,7 +149,7 @@
     "pgcache.memcached.binary_protocol": true,
     "pgcache.redis.persistent": true,
     "pgcache.redis.servers": [
-        "172.48.20.1:6379"
+        "127.0.0.1:6379"
     ],
     "pgcache.redis.password": "",
     "pgcache.redis.dbid": 0,
@@ -296,7 +296,7 @@
     "minify.memcached.binary_protocol": true,
     "minify.redis.persistent": true,
     "minify.redis.servers": [
-        "172.48.20.1:6379"
+        "127.0.0.1:6379"
     ],
     "minify.redis.password": "",
     "minify.redis.dbid": 0,

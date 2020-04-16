@@ -66,7 +66,7 @@ Config::define('WP_CONTENT_URL', Config::get('WP_HOME') . Config::get('CONTENT_D
 Config::define('DB_NAME', env('DB_NAME'));
 Config::define('DB_USER', env('DB_USER'));
 Config::define('DB_PASSWORD', env('DB_PASSWORD'));
-Config::define('DB_HOST', env('DB_HOST') ?: 'localhost');
+Config::define('DB_HOST', env('DB_HOST'));
 Config::define('DB_CHARSET', 'utf8mb4');
 Config::define('DB_COLLATE', '');
 $table_prefix = env('DB_PREFIX') ?: 'wp_';
@@ -96,7 +96,7 @@ Config::define('NONCE_SALT', env('NONCE_SALT'));
  * Custom Settings
  */
 Config::define('AUTOMATIC_UPDATER_DISABLED', true);
-Config::define('DISABLE_WP_CRON', env('DISABLE_WP_CRON') ?: false);
+Config::define('DISABLE_WP_CRON', env('DISABLE_WP_CRON') ?: true);
 // Disable the plugin and theme file editor in the admin
 Config::define('DISALLOW_FILE_EDIT', true);
 // Disable plugin and theme updates and installation from the admin

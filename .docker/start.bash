@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+## Set strict mode
+## http://redsymbol.net/articles/unofficial-bash-strict-mode/
+#set -euo pipefail
+
 
 logPrefix="docker-init --"
 
@@ -23,7 +28,7 @@ compileOpcache ()
 
     # Print output.
     # TODO move to log
-    echo $run >&1
+    echo "$run" >&1
 }
 
 calculatePmMaxChildren ()
@@ -153,11 +158,11 @@ sed -i -e "s/pm.start_servers = .*$/pm.start_servers = $(($puCount * 4))/g" /etc
 sed -i -e "s/pm.min_spare_servers = .*$/pm.min_spare_servers = $(($puCount * 2))/g" /etc/php/7.4/fpm/pool.d/app.conf
 sed -i -e "s/pm.max_spare_servers = .*$/pm.max_spare_servers = $(($puCount * 4))/g" /etc/php/7.4/fpm/pool.d/app.conf
 sed -i -e "s/pm.max_requests = .*$/pm.max_requests = 1000/g" /etc/php/7.4/fpm/pool.d/app.conf
-echo "pm.max_children set to: $pmMaxChildren" >&1
 
+echo "pm.max_children set to: $pmMaxChildren" >&1
 echo "puCount: $puCount" >&1
 
-cat /proc/meminfo >&1
+#cat /proc/meminfo >&1
 
 # echo '09' >> /home/appuser/app/storage/logs/temp.log
 
@@ -226,12 +231,92 @@ cat /proc/meminfo >&1
 ## Remove supervisord subconfigurations from /etc.
 # find /etc -type f -name supervisord-program_*.conf -delete
 
+
+
+#echo "qqqqq: ${REDIS_SERVERS}"
 ##
-# echo "$logPrefix Initialization completed." >&1
+echo "$logPrefix Initialization completed." >&1
+
+#sed --version
+#bash --version
+
+
+
+
+
+## Set .env values
+#if [[ -n "${APP_NAME}" ]]; then
+#    sed -i -e "s|APP_NAME=.*$|APP_NAME=${APP_NAME}|g" "${pathAppRoot}/.env"
+#fi
+#
+#if [[ -n "${WP_ENV}" ]]; then
+#    sed -i -e "s|WP_ENV=.*$|WP_ENV=${WP_ENV}|g" "${pathAppRoot}/.env"
+#fi
+#
+#if [[ -n "${WP_HOME}" ]]; then
+#    sed -i -e "s|WP_HOME=.*$|WP_HOME=${WP_HOME}|g" "${pathAppRoot}/.env"
+#fi
+#
+#if [[ -n "${DB_HOST}" ]]; then
+#    sed -i -e "s|DB_HOST=.*$|DB_HOST=${DB_HOST}|g" "${pathAppRoot}/.env"
+#fi
+#
+#if [[ -n "${DB_USER}" ]]; then
+#    sed -i -e "s|DB_USER=.*$|DB_USER=${DB_USER}|g" "${pathAppRoot}/.env"
+#fi
+#
+#if [[ -n "${DB_PASSWORD}" ]]; then
+#    sed -i -e "s|DB_PASSWORD=.*$|DB_PASSWORD=${DB_PASSWORD}|g" "${pathAppRoot}/.env"
+#fi
+#
+#if [[ -n "${DB_NAME}" ]]; then
+#    sed -i -e "s|DB_NAME=.*$|DB_NAME=${DB_NAME}|g" "${pathAppRoot}/.env"
+#fi
+
+
+## Set additional WordPress plugin configuration values
+if [[ -n "${REDIS_SERVERS}" ]]; then
+    sed -i -e "s|\"127.0.0.1:6379\"|\"${REDIS_SERVERS}\"|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+fi
+
+#echo "QQQQ: ${WP_HOME}"
+#echo "${pathAppRoot}"
+#cat "${pathAppRoot}/.env"
+
 
 ## optimize opcache
 # TODO solve exit code issue
 # echo $(compileOpcache) >&1
+
+#echo "install status check"
+#installStatus="$(sudo -u nginx -- wp core is-installed --debug)"
+#
+#echo "$installStatus"
+#
+#sudo -u nginx -- wp core is-installed --debug
+#
+### run install if not already installed
+#if ! sudo -u nginx -- wp core is-installed; then
+#
+#    echo "running wp core install"
+#
+#    sudo -u nginx -- wp core install \
+#        --url="${WP_HOME}" \
+#        --title=Test \
+#        --admin_user=test \
+#        --admin_password=qwerty12345 \
+#        --admin_email=matija+wp_test@scrawlr.com \
+#        --skip-email
+#fi
+
+
+#echo "<?php" > /home/appuser/app/web/wp/index.php
+#echo "echo 'qqq'" >> /home/appuser/app/web/wp/index.php
+
+#ls "${pathAppRoot}"
+#ls "${pathAppRoot}/web"
+#ls "${pathAppRoot}/web/wp"
+#cat "${pathAppRoot}/web/wp/index.php"
 
 # START SUPERVISOR.
 #echo 'START SUPERVISOR' >> /home/appuser/app/storage/logs/temp.log

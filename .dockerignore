@@ -16,7 +16,8 @@ tests
 .gitignore
 .dockerignore
 .editorconfig
-.env.example
+.env
+#.env.example
 Dockerfile
 LICENSE
 infection.json.dist
