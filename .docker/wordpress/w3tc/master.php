@@ -9,8 +9,8 @@
     "dbcache.configuration_overloaded": false,
     "dbcache.debug": false,
     "dbcache.debug_purge": false,
-    "dbcache.enabled": false,
-    "dbcache.engine": "file",
+    "dbcache.enabled": true,
+    "dbcache.engine": "redis",
     "dbcache.file.gc": 3600,
     "dbcache.file.locking": false,
     "dbcache.lifetime": 180,
@@ -381,15 +381,15 @@
     "cdn.configuration_overloaded": false,
     "cdn.enabled": false,
     "cdn.debug": false,
-    "cdn.flush_manually": false,
-    "cdn.engine": "stackpath2",
-    "cdn.uploads.enable": true,
-    "cdn.includes.enable": true,
+    "cdn.flush_manually": true,
+    "cdn.engine": "s3",
+    "cdn.uploads.enable": false,
+    "cdn.includes.enable": false,
     "cdn.includes.files": "*.css;*.js;*.gif;*.png;*.jpg;*.xml",
-    "cdn.theme.enable": true,
+    "cdn.theme.enable": false,
     "cdn.theme.files": "*.css;*.js;*.gif;*.png;*.jpg;*.ico;*.ttf;*.otf;*.woff;*.woff2;*.less",
     "cdn.minify.enable": true,
-    "cdn.custom.enable": true,
+    "cdn.custom.enable": false,
     "cdn.custom.files": [
         "favicon.ico",
         "{wp_content_dir}\/gallery\/*",
@@ -402,7 +402,7 @@
         "{plugins_dir}\/*.jpg",
         "{plugins_dir}\/*.png"
     ],
-    "cdn.import.files": false,
+    "cdn.import.files": "",
     "cdn.queue.interval": 900,
     "cdn.queue.limit": 25,
     "cdn.force.rewrite": false,
@@ -514,9 +514,15 @@
     "cdn.stackpath2.ssl": "auto",
     "cdn.reject.admins": false,
     "cdn.reject.logged_roles": false,
-    "cdn.reject.roles": [],
-    "cdn.reject.ua": [],
-    "cdn.reject.uri": [],
+    "cdn.reject.roles": [
+        ""
+    ],
+    "cdn.reject.ua": [
+        ""
+    ],
+    "cdn.reject.uri": [
+        ""
+    ],
     "cdn.reject.files": [
         "{uploads_dir}\/wpcf7_captcha\/*",
         "{uploads_dir}\/imagerotator.swf",
@@ -876,7 +882,7 @@
             ]
         }
     },
-    "common.track_usage": false,
+    "common.track_usage": true,
     "common.tweeted": false,
     "config.check": true,
     "config.path": "\/etc\/nginx\/sites-enabled\/default",

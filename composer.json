@@ -77,9 +77,8 @@
         "find web/wp/wp-content/themes/ -mindepth 1 -maxdepth 1 -type d -not -iname 'twentytwenty' -exec rm -rf {} +"
     ],
     "wp:plugins:move-to-mu": [
-      "find web/app/mu-plugins/installable -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +",
-      "mv web/app/plugins/w3-total-cache web/app/mu-plugins/installable",
-      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/w3-total-cache/w3-total-cache.php\";' > web/app/mu-plugins/installable_w3-total-cache.php"
+      "find web/app/mu-plugins/ -mindepth 1 -maxdepth 1 -type f -iname '_installable*.php' -delete",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/w3-total-cache/w3-total-cache.php\";' > web/app/mu-plugins/_installable_w3-total-cache.php"
     ],
     "test": [
       "phpcs"
@@ -88,6 +87,7 @@
   "extra": {
     "installer-paths": {
       "web/app/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+      "web/app/mu-plugins/installable/{$name}/": ["wpackagist-plugin/w3-total-cache"],
       "web/app/plugins/{$name}/": ["type:wordpress-plugin"],
       "web/app/themes/{$name}/": ["type:wordpress-theme"]
     },

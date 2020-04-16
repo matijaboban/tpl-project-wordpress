@@ -4,8 +4,11 @@ FROM ubuntu:bionic
 # Set base configurations
 ARG php_version=7.4
 
-ARG appPath=/home/appuser/app
-
+ARG path_project=/home/appuser/app
+ARG path_app=/home/appuser/app/web
+ARG path_plug=/home/appuser/app/web/app/plugins
+ARG path_muplug=/home/appuser/app/web/app/mu-plugins
+ARG path_muplug_inst=/home/appuser/app/web/app/mu-plugins/installable
 
 ARG nginx_user_name=nginx
 ARG nginx_user_id=25874
@@ -83,9 +86,9 @@ ENV build_deps \
         # python3 \
         python-setuptools \
         python-pip \
-        gcc \
-        g++ \
-        wget
+        # gcc \
+        # g++ \
+        # wget
         # python3-pip
         # software-properties-common \
         # composer \
@@ -156,9 +159,9 @@ RUN apt-get install -y --no-install-recommends $build_deps
 RUN apt-get install -y --no-install-recommends $persistent_deps
 
 # Run manual installs
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-RUN chmod +x wp-cli.phar
-RUN mv wp-cli.phar /usr/local/bin/wp
+#RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+#RUN chmod +x wp-cli.phar
+#RUN mv wp-cli.phar /usr/local/bin/wp
 
 # Install persistent dependencies
 # RUN apk add --update --no-cache --virtual .persistent-dependencies $persistent_deps
@@ -199,7 +202,7 @@ ADD .docker/nginx/site.conf /etc/nginx/sites-available/default
 ADD .docker/php-fpm/php.ini /etc/php/${php_version}/fpm/php.ini
 ADD .docker/php-fpm/php-fpm.conf /etc/php/${php_version}/fpm/php-fpm.conf
 ADD .docker/php-fpm/pool.app.conf /etc/php/${php_version}/fpm/pool.d/app.conf
-ADD .env.example ${appPath}/.env
+ADD .env.example ${path_project}/.env
 ADD .docker/start.bash /start.bash
 RUN chmod 755 /start.bash
 
@@ -255,10 +258,10 @@ RUN apt-get update -y && \
 USER ${cont_user_name}
 
 # Set working directory
-WORKDIR ${appPath}
+WORKDIR ${path_project}
 
 # Copy application files into image
-COPY . ${appPath}
+COPY . ${path_project}
 
 
 
@@ -266,33 +269,33 @@ COPY . ${appPath}
 USER root
 
 ## Additional file/directory generation
-RUN mkdir -p ${appPath}/web/.cache/w3tc && \
-    mkdir -p ${appPath}/web/.configs/w3tc
+RUN mkdir -p ${path_project}/web/.cache/w3tc && \
+    mkdir -p ${path_project}/web/.configs/w3tc
 
 
 
 # Additional file processing
-RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/advanced-cache.php ${appPath}/web/app/advanced-cache.php
-RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/object-cache.php ${appPath}/web/app/object-cache.php
-RUN cp ${appPath}/web/app/plugins/w3-total-cache/wp-content/db.php ${appPath}/web/app/db.php
-RUN rm -rf ${appPath}/.docker
-RUN rm -rf ${appPath}/composer.*
-ADD .docker/wordpress/w3tc/master.php ${appPath}/web/.configs/w3tc/master.php
+RUN cp ${path_muplug_inst}/w3-total-cache/wp-content/advanced-cache.php ${path_project}/web/app/advanced-cache.php
+RUN cp ${path_muplug_inst}/w3-total-cache/wp-content/object-cache.php ${path_project}/web/app/object-cache.php
+RUN cp ${path_muplug_inst}/w3-total-cache/wp-content/db.php ${path_project}/web/app/db.php
+RUN rm -rf ${path_project}/.docker
+RUN rm -rf ${path_project}/composer.*
+ADD .docker/wordpress/w3tc/master.php ${path_project}/web/.configs/w3tc/master.php
 
 ## Additional permision processign
-RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/app/uploads ${appPath}/web/.cache ${appPath}/web/.configs
-#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/.cache
-#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${appPath}/web/.configs
-RUN chmod 777 -R ${appPath}/web/.cache/w3tc ${appPath}/web/.configs/w3tc
-RUN chmod 777 -R ${appPath}/web/app/uploads
+RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/app/uploads ${path_project}/web/.cache ${path_project}/web/.configs
+#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.cache
+#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.configs
+RUN chmod 777 -R ${path_project}/web/.cache/w3tc ${path_project}/web/.configs/w3tc
+RUN chmod 777 -R ${path_project}/web/app/uploads
 
 
-#RUN ls -alh ${appPath}/web/
-#RUN ls -alh ${appPath}/web/app/uploads
-#RUN ls -alh ${appPath}/web/.cache
-RUN ls -alh ${appPath}/web/.configs/w3tc
+#RUN ls -alh ${path_project}/web/
+#RUN ls -alh ${path_project}/web/app/uploads
+#RUN ls -alh ${path_project}/web/.cache
+RUN ls -alh ${path_project}/web/.configs/w3tc
 
-#RUN mkdir ${appPath}/foo && chown ${nginx_user_name}:${nginx_user_name} ${appPath}/foo  
+#RUN mkdir ${path_project}/foo && chown ${nginx_user_name}:${nginx_user_name} ${path_project}/foo  
 # empty, but owned by `nicolas`. Could also have some initial content
 #VOLUME /foo  
 
