@@ -23,6 +23,7 @@ services:
       - WP_ENV=${WP_ENV:-local}
       - WP_HOME=${WP_HOME:-http://172.48.10.0}
       - WP_CACHE=${WP_CACHE:-false}
+      - AWS_IAM_KEY="fweuighwjeeeeeeeeeeeeeeeeeeefbhwejjsvdn"
     labels:
       - 'scrw.backend=${APP_NAME}'
       - 'scrw.docker.network=scrw_wp_external'

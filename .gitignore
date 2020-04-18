@@ -33,7 +33,7 @@ web/app/mu-plugins/*/
 web/app/mu-plugins/installable/*
 web/app/mu-plugins/_installable_*.php
 web/app/upgrade
-web/app/uploads/*
+web/uploads/*
 web/wp
 web/.htaccess
 

@@ -1,14 +1,17 @@
-# FROM nginx:mainline
-FROM ubuntu:bionic
+#FROM nginx:mainline
+#FROM ubuntu:bionic
+FROM ubuntu:eoan
 
 # Set base configurations
 ARG php_version=7.4
 
 ARG path_project=/home/appuser/app
 ARG path_app=/home/appuser/app/web
-ARG path_plug=/home/appuser/app/web/app/plugins
+ARG path_plugins=/home/appuser/app/web/app/plugins
 ARG path_muplug=/home/appuser/app/web/app/mu-plugins
 ARG path_muplug_inst=/home/appuser/app/web/app/mu-plugins/installable
+ARG path_muplug_w3tc=${path_muplug_inst}/w3-total-cache
+ARG path_uploads=/home/appuser/app/web/app/uploads
 
 ARG nginx_user_name=nginx
 ARG nginx_user_id=25874
@@ -91,7 +94,7 @@ ENV build_deps \
         # wget
         # python3-pip
         # software-properties-common \
-        # composer \
+        composer
 
 ## Set python build dependencies for Python.
 ENV build_deps_python \
@@ -282,12 +285,19 @@ RUN rm -rf ${path_project}/.docker
 RUN rm -rf ${path_project}/composer.*
 ADD .docker/wordpress/w3tc/master.php ${path_project}/web/.configs/w3tc/master.php
 
-## Additional permision processign
-RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/app/uploads ${path_project}/web/.cache ${path_project}/web/.configs
-#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.cache
-#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.configs
-RUN chmod 777 -R ${path_project}/web/.cache/w3tc ${path_project}/web/.configs/w3tc
-RUN chmod 777 -R ${path_project}/web/app/uploads
+## Additional permision processing
+RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_uploads}
+RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.cache
+RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.configs
+RUN chmod 777 -R ${path_project}/web/.cache/w3tc
+RUN chmod 777 -R ${path_project}/web/.configs/w3tc
+RUN chmod 777 -R ${path_uploads}
+
+
+## Additional WP extention file processing
+RUN sed -i '/ACL/d' "${path_muplug_w3tc}/CdnEngine_S3.php"
+
+
 
 
 #RUN ls -alh ${path_project}/web/

@@ -279,6 +279,16 @@ if [[ -n "${REDIS_SERVERS}" ]]; then
     sed -i -e "s|\"127.0.0.1:6379\"|\"${REDIS_SERVERS}\"|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
 fi
 
+if [[ -n "${AWS_IAM_KEY}" ]]; then
+    sed -i -e "s|\"cdn.s3.key\".*$|\"cdn.s3.key\": \"${AWS_IAM_KEY}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+fi
+
+if [[ -n "${AWS_IAM_SECRET}" ]]; then
+    sed -i -e "s|\"cdn.s3.secret\".*$|\"cdn.s3.secret\": \"${AWS_IAM_SECRET}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+fi
+
+
+
 #echo "QQQQ: ${WP_HOME}"
 #echo "${pathAppRoot}"
 #cat "${pathAppRoot}/.env"
