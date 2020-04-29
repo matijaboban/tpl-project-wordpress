@@ -78,8 +78,12 @@
     ],
     "wp:plugins:move-to-mu": [
       "find web/app/mu-plugins/ -mindepth 1 -maxdepth 1 -type f -iname '_installable*.php' -delete",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/getwid/getwid.php\";' > web/app/mu-plugins/_installable_getwid.php",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/mailgun/mailgun.php\";' > web/app/mu-plugins/_installable_mailgun.php",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/twentig/twentig.php\";' > web/app/mu-plugins/_installable_twentig.php",
       "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/simple-history/index.php\";' > web/app/mu-plugins/_installable_simple-history.php",
-      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/w3-total-cache/w3-total-cache.php\";' > web/app/mu-plugins/_installable_w3-total-cache.php"
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/w3-total-cache/w3-total-cache.php\";' > web/app/mu-plugins/_installable_w3-total-cache.php",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/wordpress-seo/wp-seo.php\";' > web/app/mu-plugins/_installable_getwid.php"
     ],
     "test": [
       "phpcs"
@@ -88,7 +92,14 @@
   "extra": {
     "installer-paths": {
       "web/app/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
-      "web/app/mu-plugins/installable/{$name}/": ["wpackagist-plugin/simple-history", "wpackagist-plugin/w3-total-cache"],
+      "web/app/mu-plugins/installable/{$name}/": [
+        "wpackagist-plugin/getwid",
+        "wpackagist-plugin/mailgun",
+        "wpackagist-plugin/simple-history", 
+        "wpackagist-plugin/twentig",
+        "wpackagist-plugin/w3-total-cache",
+        "wpackagist-plugin/wordpress-seo"
+      ],
       "web/app/plugins/{$name}/": ["type:wordpress-plugin"],
       "web/app/themes/{$name}/": ["type:wordpress-theme"]
     },

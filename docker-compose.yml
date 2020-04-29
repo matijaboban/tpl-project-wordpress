@@ -2,35 +2,37 @@ version: '3.4'
 
 services:
   app:
-    #image: test01:latest
     build: .
     restart: always
-    container_name: ${APP_NAME}_app
+    container_name: ${APP_NAME:-corporate}_app
     ports:
-      - 5580:80
+      - ${PORT_PREFIX:-}9080:80
     depends_on:
       - database
       - redis
-    # links:
-      # - php
     networks:
-      # - scrw_external
-      scrw_internal:
-        ipv4_address: 172.48.10.0
+      - scrw_corporate
     environment:
-      - DB_HOST=${DB_HOST:-172.48.20.0}
-      - REDIS_SERVERS=${REDIS_SERVERS:-172.48.20.1:6379}
+      - DB_HOST=database
+      - DB_USER=${DB_USER:-scrw_db_user}
+      - DB_PASSWORD=${DB_PASSWORD:-scrw_db_password}
+      - DB_NAME=${DB_NAME:-scrw_db}
+      - REDIS_SERVERS=${REDIS_SERVERS:-localhost:6379}
       - WP_ENV=${WP_ENV:-local}
-      - WP_HOME=${WP_HOME:-http://172.48.10.0}
+      - WP_HOME=${WP_HOME:-http://localhost:9080}
       - WP_CACHE=${WP_CACHE:-false}
-      - AWS_IAM_KEY="fweuighwjeeeeeeeeeeeeeeeeeeefbhwejjsvdn"
-    labels:
-      - 'scrw.backend=${APP_NAME}'
-      - 'scrw.docker.network=scrw_wp_external'
-      - 'scrw.frontend.rule=Host:${APP_NAME}'
-      - 'scrw.enable=true'
-      - 'scrw.port=80'
-    volumes:
+      - AWS_IAM_KEY="AWS_IAM_KEY"
+      - AWS_IAM_SECRET="AWS_IAM_SECRET"
+      - AWS_S3_BUCKET="AWS_S3_BUCKET"
+      - AWS_S3_BUCKET_REGION="AWS_S3_BUCKET_REGION"
+      - AWS_CLOUDFRONT_DOMAIN="AWS_CLOUDFRONT_DOMAIN"
+    #labels:
+    #  - 'scrw.backend=${APP_NAME}'
+    #  - 'scrw.docker.network=scrw_wp_external'
+    #  - 'scrw.frontend.rule=Host:${APP_NAME}'
+    #  - 'scrw.enable=true'
+    #  - 'scrw.port=80'
+    #volumes:
       #- ./local/public:/home/appuser/app/web/app/uploads
       
 
@@ -43,7 +45,7 @@ services:
       
       #- .cache/app/logs/nginx:/var/log/nginx
       #- .cache/app/logs/php:/var/log/php
-      - .cache/app/logs/supervisor:/var/log/supervisor
+      #- .cache/app/logs/supervisor:/var/log/supervisor
       
       #- .cache/app/uploads:/home/appuser/app/web/app/uploads
       # - type: bind
@@ -52,129 +54,60 @@ services:
 
   database:
     image: mysql:latest
-    container_name: ${APP_NAME}_mysql
+    container_name: ${APP_NAME:-corporate}_mysql
     restart: always
     ports:
-      - '3306:3306'
-    # command: [
-    #     '--default_authentication_plugin=mysql_native_password',
-    #     '--character-set-server=utf8mb4',
-    #     '--collation-server=utf8mb4_unicode_ci'
-    # ]
+      - ${PORT_PREFIX:-}3306:3306
+    command: [
+    # '--default_authentication_plugin=mysql_native_password',
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci'
+    ]
     networks:
-      scrw_internal:
-          ipv4_address: 172.48.20.0
+      - scrw_corporate
     environment:
-      ## Use % to allow remote access to all addresses.
-      ## Generally not recommended by some people to allow for root.
-      # MYSQL_ROOT_HOST: '%'
-      # MYSQL_ROOT_HOST: '172.28.0.2/255.255.255.248'
-      MYSQL_ROOT_PASSWORD: scrw_db_root_password
-      # MYSQL_USER: mybb
-      # MYSQL_PASSWORD: password
-      # MYSQL_DATABASE: mybb
-      # - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      MYSQL_USER: ${DB_USER:-scrw_wp_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-scrw_wp_password}
-      MYSQL_DATABASE: ${DB_NAME:-scrw_wp_db}
-    # volumes:
-    #   - '.cache/database:/var/lib/mysql'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
+      MYSQL_USER: ${DB_USER:-scrw_db_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-scrw_db_password}
+      MYSQL_DATABASE: ${DB_NAME:-scrw_db}
     volumes:
-      - '.cache/database:/var/lib/mysql'
-    # volumes:
-    #   - 'mysql_data:/var/lib/mysql'
+      - '.cache/docker/database:/var/lib/mysql'
 
   redis:
     image: redis:5.0.8
     container_name: ${APP_NAME}_redis
     restart: always
     ports:
-      - '6379:6379'
-    # command: [
-    #     '--default_authentication_plugin=mysql_native_password',
-    #     '--character-set-server=utf8mb4',
-    #     '--collation-server=utf8mb4_unicode_ci'
-    # ]
+      - ${PORT_PREFIX:-}6379:6379
     networks:
-      scrw_internal:
-          ipv4_address: 172.48.20.1
-    #environment:
-      ## Use % to allow remote access to all addresses.
-      ## Generally not recommended by some people to allow for root.
-      # MYSQL_ROOT_HOST: '%'
-      # MYSQL_ROOT_HOST: '172.28.0.2/255.255.255.248'
-      #MYSQL_ROOT_PASSWORD: scrw_db_root_password
-      # MYSQL_USER: mybb
-      # MYSQL_PASSWORD: password
-      # MYSQL_DATABASE: mybb
-      # - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      #MYSQL_USER: ${DB_USER:-scrw_wp_user}
-      #MYSQL_PASSWORD: ${DB_PASSWORD:-scrw_wp_password}
-      #MYSQL_DATABASE: ${DB_NAME:-scrw_wp_db}
-    # volumes:
-    #   - '.cache/database:/var/lib/mysql'
-    volumes:
-      - '.cache/redis:/var/lib/redis'
-    # volumes:
-    #   - 'mysql_data:/var/lib/mysql'
-
-  # php:
-  #   restart: always
-  #   container_name: ${APP_NAME}_php
-  #   # depends_on:
-  #   #   - database
-  #   # links:
-  #   #   - database
-  #   networks:
-  #     - scrw_wp_external
-  #     - timber
-  #   # environment:
-  #   #   - DB_HOST=database
-  #   #   - DB_NAME=${DB_NAME}
-  #   #   - DB_USER=${DB_USER}
-  #   #   - DB_PASSWORD=${DB_PASSWORD}
-  #   volumes:
-  #     - ./web:/var/www/html
-  #     - ./config/php.ini:/usr/local/etc/php/conf.d/php.ini
-  
-
+      - scrw_corporate
+    #volumes:
+    #  - '.cache/redis:/var/lib/redis'
 
 
   adminer:
     image: adminer:latest
     restart: always
     ports:
-      - 5780:80
+      - ${PORT_PREFIX:-}9081:8080
     depends_on:
       - database
     environment:
       ADMINER_DEFAULT_DB_DRIVER: mysql
-      #ADMINER_DEFAULT_DB_HOST: database
-      #ADMINER_DEFAULT_DB_NAME: ${DB_NAME:-scrw_wp_db}
+      ADMINER_DEFAULT_DB_HOST: database
+      ADMINER_DEFAULT_DB_NAME: ${DB_NAME:-scrw_db}
       ADMINER_DESIGN: nette
       ADMINER_PLUGINS: tables-filter tinymce
-    # labels:
-      # - 'scrw.enable=true'
-      # - 'scrw.backend=${APP_NAME}_adminer'
-      # - 'scrw.frontend.rule=Host:adminer.scrw.local'
-      # - 'scrw.docker.network=web'
-      # - 'scrw.docker.port=8080'
     networks:
-      scrw_internal:
-          ipv4_address: 172.48.30.0
-      # - scrw_external
+      - scrw_corporate
 
 networks:
-  # scrw_external:
-  scrw_internal:
+  scrw_corporate:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.48.0.0/16
 
 
-volumes:
-    db-data:
+#volumes:
+#    db-data:
 
 # volumes:
 #   # mysql_data:

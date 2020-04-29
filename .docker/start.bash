@@ -281,10 +281,26 @@ fi
 
 if [[ -n "${AWS_IAM_KEY}" ]]; then
     sed -i -e "s|\"cdn.s3.key\".*$|\"cdn.s3.key\": \"${AWS_IAM_KEY}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+    sed -i -e "s|\"cdn.cf.key\".*$|\"cdn.cf.key\": \"${AWS_IAM_KEY}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
 fi
 
 if [[ -n "${AWS_IAM_SECRET}" ]]; then
     sed -i -e "s|\"cdn.s3.secret\".*$|\"cdn.s3.secret\": \"${AWS_IAM_SECRET}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+    sed -i -e "s|\"cdn.cf.secret\".*$|\"cdn.cf.secret\": \"${AWS_IAM_SECRET}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+fi
+
+if [[ -n "${AWS_S3_BUCKET}" ]]; then
+    sed -i -e "s|\"cdn.s3.bucket\".*$|\"cdn.s3.bucket\": \"${AWS_S3_BUCKET}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+    sed -i -e "s|\"cdn.cf.bucket\".*$|\"cdn.cf.bucket\": \"${AWS_S3_BUCKET}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+fi
+
+if [[ -n "${AWS_S3_BUCKET_REGION}" ]]; then
+    sed -i -e "s|\"cdn.s3.bucket.location\".*$|\"cdn.s3.bucket.location\": \"${AWS_S3_BUCKET_REGION}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+    sed -i -e "s|\"cdn.cf.bucket.location\".*$|\"cdn.cf.bucket.location\": \"${AWS_S3_BUCKET_REGION}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+fi
+
+if [[ -n "${v}" ]]; then
+    sed -i -e "s|\"cdn.cf.id\".*$|\"cdn.cf.id\": \"${AWS_CLOUDFRONT_DOMAIN}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
 fi
 
 

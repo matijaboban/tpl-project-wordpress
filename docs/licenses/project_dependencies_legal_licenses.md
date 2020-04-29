@@ -260,7 +260,7 @@ Licenses Used: Apache-2.0
    See the License for the specific language governing permissions and
    limitations under the License.
 
-### roots/wordpress (Version 5.4 | 5.4)
+### roots/wordpress (Version 5.4.1 | 5.4.1)
 WordPress is web software you can use to create a beautiful website or blog.
 Homepage: https://wordpress.org/
 Licenses Used: GPL-2.0-or-later

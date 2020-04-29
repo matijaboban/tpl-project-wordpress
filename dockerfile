@@ -283,15 +283,20 @@ RUN cp ${path_muplug_inst}/w3-total-cache/wp-content/object-cache.php ${path_pro
 RUN cp ${path_muplug_inst}/w3-total-cache/wp-content/db.php ${path_project}/web/app/db.php
 RUN rm -rf ${path_project}/.docker
 RUN rm -rf ${path_project}/composer.*
+ADD .docker/wordpress/w3tc/index.html ${path_project}/web/.configs/w3tc/index.html
 ADD .docker/wordpress/w3tc/master.php ${path_project}/web/.configs/w3tc/master.php
 
 ## Additional permision processing
 RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_uploads}
 RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.cache
-RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.configs
+#RUN chown ${nginx_user_name}:${nginx_user_name} -R ${path_project}/web/.configs
 RUN chmod 777 -R ${path_project}/web/.cache/w3tc
-RUN chmod 777 -R ${path_project}/web/.configs/w3tc
+#RUN chmod 777 ${path_project}/web/.configs/w3tc
 RUN chmod 777 -R ${path_uploads}
+
+
+#RUN chown root:root ${path_project}/web/.configs/w3tc/master.php
+#RUN chmod 444 ${path_project}/web/.configs/w3tc/master.php
 
 
 ## Additional WP extention file processing
@@ -304,13 +309,7 @@ RUN sed -i '/ACL/d' "${path_muplug_w3tc}/CdnEngine_S3.php"
 #RUN ls -alh ${path_project}/web/app/uploads
 #RUN ls -alh ${path_project}/web/.cache
 RUN ls -alh ${path_project}/web/.configs/w3tc
-
-#RUN mkdir ${path_project}/foo && chown ${nginx_user_name}:${nginx_user_name} ${path_project}/foo  
-# empty, but owned by `nicolas`. Could also have some initial content
-#VOLUME /foo  
-
-
-
+RUN tail ${path_project}/web/.configs/w3tc/*
 
 
 
