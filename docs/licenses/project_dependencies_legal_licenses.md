@@ -727,7 +727,7 @@ Homepage: https://wordpress.org/plugins/mailgun/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
-### wpackagist-plugin/twentig (Version 0.9 | tags/0.)
+### wpackagist-plugin/twentig (Version 0.9.1 | tags/0.)
 Not configured.
 Homepage: https://wordpress.org/plugins/twentig/
 Licenses Used: Not configured.
@@ -739,7 +739,7 @@ Homepage: https://wordpress.org/plugins/typeform/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
-### wpackagist-plugin/w3-total-cache (Version 0.13.2 | tags/0.)
+### wpackagist-plugin/w3-total-cache (Version 0.13.3 | tags/0.)
 Not configured.
 Homepage: https://wordpress.org/plugins/w3-total-cache/
 Licenses Used: Not configured.
