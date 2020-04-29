@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45796e3f565bb00458adc03d357ae8d8",
+    "content-hash": "02645bfe4b9a9f0765d84d8e3d0d1b39",
     "packages": [
         {
             "name": "composer/installers",
@@ -576,24 +576,6 @@
             "time": "2020-04-12T15:20:09+00:00"
         },
         {
-            "name": "wpackagist-plugin/amazon-polly",
-            "version": "4.2.0",
-            "source": {
-                "type": "svn",
-                "url": "https://plugins.svn.wordpress.org/amazon-polly/",
-                "reference": "tags/4.2.0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/amazon-polly.4.2.0.zip"
-            },
-            "require": {
-                "composer/installers": "~1.0"
-            },
-            "type": "wordpress-plugin",
-            "homepage": "https://wordpress.org/plugins/amazon-polly/"
-        },
-        {
             "name": "wpackagist-plugin/disable-comments",
             "version": "1.10.2",
             "source": {
@@ -646,6 +628,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/mailgun/"
+        },
+        {
+            "name": "wpackagist-plugin/simple-history",
+            "version": "2.33.2",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/simple-history/",
+                "reference": "tags/2.33.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/simple-history.2.33.2.zip"
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/simple-history/"
         },
         {
             "name": "wpackagist-plugin/twentig",
@@ -703,15 +703,15 @@
         },
         {
             "name": "wpackagist-plugin/wordpress-seo",
-            "version": "13.5",
+            "version": "14.0.2",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/wordpress-seo/",
-                "reference": "tags/13.5"
+                "reference": "tags/14.0.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/wordpress-seo.13.5.zip"
+                "url": "https://downloads.wordpress.org/plugin/wordpress-seo.14.0.2.zip"
             },
             "require": {
                 "composer/installers": "~1.0"

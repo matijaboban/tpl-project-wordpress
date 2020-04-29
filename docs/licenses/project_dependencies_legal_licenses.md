@@ -703,12 +703,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-### wpackagist-plugin/amazon-polly (Version 4.2.0 | tags/4.)
-Not configured.
-Homepage: https://wordpress.org/plugins/amazon-polly/
-Licenses Used: Not configured.
-Full license text not found in dependency source.
-
 ### wpackagist-plugin/disable-comments (Version 1.10.2 | trunk)
 Not configured.
 Homepage: https://wordpress.org/plugins/disable-comments/
@@ -724,6 +718,12 @@ Full license text not found in dependency source.
 ### wpackagist-plugin/mailgun (Version 1.7.1 | tags/1.)
 Not configured.
 Homepage: https://wordpress.org/plugins/mailgun/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+
+### wpackagist-plugin/simple-history (Version 2.33.2 | tags/2.)
+Not configured.
+Homepage: https://wordpress.org/plugins/simple-history/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
@@ -745,7 +745,7 @@ Homepage: https://wordpress.org/plugins/w3-total-cache/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
-### wpackagist-plugin/wordpress-seo (Version 13.5 | tags/13)
+### wpackagist-plugin/wordpress-seo (Version 14.0.2 | tags/14)
 Not configured.
 Homepage: https://wordpress.org/plugins/wordpress-seo/
 Licenses Used: Not configured.
