@@ -757,3 +757,9 @@ Homepage: https://wordpress.org/plugins/wp-maintenance-mode/
 Licenses Used: Not configured.
 Full license text not found in dependency source.
 
+### wpackagist-plugin/wp-piwik (Version 1.0.22 | tags/1.)
+Not configured.
+Homepage: https://wordpress.org/plugins/wp-piwik/
+Licenses Used: Not configured.
+Full license text not found in dependency source.
+

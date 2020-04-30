@@ -24,7 +24,7 @@
     "dbcache.memcached.binary_protocol": true,
     "dbcache.redis.persistent": true,
     "dbcache.redis.servers": [
-        "127.0.0.1:6379"
+        "redis"
     ],
     "dbcache.redis.password": "",
     "dbcache.redis.dbid": 0,
@@ -44,7 +44,9 @@
         "_wp_session_",
         "_wc_session_"
     ],
-    "dbcache.reject.uri": [],
+    "dbcache.reject.uri": [
+        ""
+    ],
     "dbcache.reject.words": [
         "^\\s*insert\\b",
         "^\\s*delete\\b",
@@ -105,7 +107,7 @@
     "objectcache.memcached.binary_protocol": true,
     "objectcache.redis.persistent": true,
     "objectcache.redis.servers": [
-        "127.0.0.1:6379"
+        "redis"
     ],
     "objectcache.redis.password": "",
     "objectcache.redis.dbid": 0,
@@ -149,7 +151,7 @@
     "pgcache.memcached.binary_protocol": true,
     "pgcache.redis.persistent": true,
     "pgcache.redis.servers": [
-        "127.0.0.1:6379"
+        "redis"
     ],
     "pgcache.redis.password": "",
     "pgcache.redis.dbid": 0,
@@ -296,7 +298,7 @@
     "minify.memcached.binary_protocol": true,
     "minify.redis.persistent": true,
     "minify.redis.servers": [
-        "127.0.0.1:6379"
+        "redis"
     ],
     "minify.redis.password": "",
     "minify.redis.dbid": 0,
@@ -409,7 +411,7 @@
     "cdn.autoupload.enabled": false,
     "cdn.autoupload.interval": 3600,
     "cdn.canonical_header": false,
-    "cdn.admin.media_library": false,
+    "cdn.admin.media_library": true,
     "cdn.cors_header": true,
     "cdn.ftp.host": "",
     "cdn.ftp.type": "",
@@ -432,18 +434,18 @@
     "cdn.highwinds.host.hash_code": "",
     "cdn.highwinds.host.domains": [],
     "cdn.highwinds.ssl": "auto",
-    "cdn.s3.key": "",
-    "cdn.s3.secret": "",
-    "cdn.s3.bucket": "",
-    "cdn.s3.bucket.location": "us-east-1",
+    "cdn.s3.key": "AWS_IAM_KEY",
+    "cdn.s3.secret": "AWS_IAM_SECRET",
+    "cdn.s3.bucket": "AWS_S3_BUCKET",
+    "cdn.s3.bucket.location": "AWS_S3_BUCKET_REGION",
     "cdn.s3.cname": [],
     "cdn.s3.ssl": "auto",
     "cdn.s3_compatible.api_host": "auto",
-    "cdn.cf.key": "",
-    "cdn.cf.secret": "",
-    "cdn.cf.bucket": "",
+    "cdn.cf.key": "AWS_IAM_KEY",
+    "cdn.cf.secret": "AWS_IAM_SECRET",
+    "cdn.cf.bucket": "aws_s3_bucket",
     "cdn.cf.bucket.location": "us-east-1",
-    "cdn.cf.id": "",
+    "cdn.cf.id": "AWS_CLOUDFRONT_ID",
     "cdn.cf.cname": [],
     "cdn.cf.ssl": "auto",
     "cdn.cf2.key": "",
@@ -605,8 +607,8 @@
     "browsercache.security.session.use_only_cookies": "",
     "browsercache.hsts": false,
     "browsercache.security.hsts.directive": "maxage",
-    "browsercache.security.xfo": true,
-    "browsercache.security.xfo.directive": "deny",
+    "browsercache.security.xfo": false,
+    "browsercache.security.xfo.directive": "same",
     "browsercache.security.xfo.allow": "",
     "browsercache.security.xss": false,
     "browsercache.security.xss.directive": "block",
@@ -905,7 +907,7 @@
     "timelimit.cdn_test": 300,
     "timelimit.domain_rename": 120,
     "timelimit.minify_recommendations": 600,
-    "common.instance_id": 1014597796,
+    "common.instance_id": 1748359503,
     "common.force_master": true,
     "extensions.active": {
         "fragmentcache": "w3-total-cache\/Extension_FragmentCache_Plugin.php"

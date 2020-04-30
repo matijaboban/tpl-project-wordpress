@@ -299,8 +299,8 @@ if [[ -n "${AWS_S3_BUCKET_REGION}" ]]; then
     sed -i -e "s|\"cdn.cf.bucket.location\".*$|\"cdn.cf.bucket.location\": \"${AWS_S3_BUCKET_REGION}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
 fi
 
-if [[ -n "${v}" ]]; then
-    sed -i -e "s|\"cdn.cf.id\".*$|\"cdn.cf.id\": \"${AWS_CLOUDFRONT_DOMAIN}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
+if [[ -n "${AWS_CLOUDFRONT_ID}" ]]; then
+    sed -i -e "s|\"cdn.cf.id\".*$|\"cdn.cf.id\": \"${AWS_CLOUDFRONT_ID}\",|g" "${pathAppRoot}/web/.configs/w3tc/master.php"
 fi
 
 

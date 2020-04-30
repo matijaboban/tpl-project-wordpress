@@ -45,7 +45,8 @@
     "wpackagist-plugin/typeform": "^1.3",
     "wpackagist-plugin/w3-total-cache": "^0.13",
     "wpackagist-plugin/wordpress-seo": "^14.0",
-    "wpackagist-plugin/wp-maintenance-mode": "^2.2"
+    "wpackagist-plugin/wp-maintenance-mode": "^2.2",
+    "wpackagist-plugin/wp-piwik": "^1.0"
   },
   "require-dev": {
     "comcast/php-legal-licenses": "^1.1",
@@ -83,7 +84,8 @@
       "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/twentig/twentig.php\";' > web/app/mu-plugins/_installable_twentig.php",
       "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/simple-history/index.php\";' > web/app/mu-plugins/_installable_simple-history.php",
       "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/w3-total-cache/w3-total-cache.php\";' > web/app/mu-plugins/_installable_w3-total-cache.php",
-      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/wordpress-seo/wp-seo.php\";' > web/app/mu-plugins/_installable_getwid.php"
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/wordpress-seo/wp-seo.php\";' > web/app/mu-plugins/_installable_getwid.php",
+      "echo '<?php \nrequire WPMU_PLUGIN_DIR.\"/installable/wp-piwik/wp-piwik.php\";' > web/app/mu-plugins/_installable_wp-piwik.php"
     ],
     "test": [
       "phpcs"
@@ -98,7 +100,8 @@
         "wpackagist-plugin/simple-history", 
         "wpackagist-plugin/twentig",
         "wpackagist-plugin/w3-total-cache",
-        "wpackagist-plugin/wordpress-seo"
+        "wpackagist-plugin/wordpress-seo",
+        "wpackagist-plugin/wp-piwik"
       ],
       "web/app/plugins/{$name}/": ["type:wordpress-plugin"],
       "web/app/themes/{$name}/": ["type:wordpress-theme"]
