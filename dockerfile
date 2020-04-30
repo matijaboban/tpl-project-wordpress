@@ -301,6 +301,8 @@ RUN chmod 777 -R ${path_uploads}
 
 ## Additional WP extention file processing
 RUN sed -i '/ACL/d' "${path_muplug_w3tc}/CdnEngine_S3.php"
+RUN sed -i -e "s|\"config.path\".*$|\"config.path\": \"/etc/nginx/sites-available/default\",|g" "${path_project}/web/.configs/w3tc/master.php"
+
 
 
 
